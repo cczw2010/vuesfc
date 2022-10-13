@@ -10,6 +10,4 @@ export default {
   injectScript:true,
   // 可根据配置文件目标文件目录生成静态服务器，此处设置为外链url引入前缀，
   // injectStyle:'/static', 
-  // injectScript:'/.vue/65e7a51f',
-  // injectScript:'/.vue/6b7c98a9',
 }

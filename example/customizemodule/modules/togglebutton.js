@@ -1,7 +1,11 @@
 import Vue from 'vue'
 
+<%if(options.ssr){%>
+import ToggleButton from 'vue-js-toggle-button/dist/ssr.index.js'
+<%}else{%>
+import ToggleButton from 'vue-js-toggle-button'
+<%}%>
 
-import ToggleButton from 'vue-js-toggle-button/src/index'
 Vue.use(ToggleButton)
 
 export default function(){

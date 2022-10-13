@@ -1,7 +1,11 @@
 // 会打包进代码中
 import Vue from "vue"
-import Notifications from 'vue-notification/src/index.js'
-
+<%if(options.ssr){%>
+import Notifications from 'vue-notification/dist/ssr.js'
+<%}else{%>
+import Notifications from 'vue-notification'
+<%}%>
+  
 Vue.use(Notifications)
 // Vue.use(Notifications,<%=JSON.stringify(options)%> )
 

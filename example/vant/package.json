@@ -6,7 +6,6 @@
   "type": "module",
   "dependencies": {
     "vue":"^2.6.14",
-    "vuesfcbuilder": "^1.4.1",
     "write": "^2.0.0"
   },
   "devDependencies": {},

@@ -25,6 +25,6 @@ export default {
       }
     }
   },
-  rollupExternal:["vuetify","vuetify/lib",'vue'],
-  rollupGlobals:{"vuetify":"Vuetify",'vue':'Vue'}
+  rollupExternal:["vuetify","vuetify/lib"],
+  rollupGlobals:{"vuetify":"Vuetify"}
 }

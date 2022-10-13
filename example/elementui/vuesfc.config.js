@@ -7,7 +7,11 @@ export default {
   // 自定义component源码目录
   source_component: "src/components",
   buildModules:{
-    '~/modules/notifications.js':{},
-    '~/modules/togglebutton.js': {}
-  }
+    '~/modules/elementui.js':{
+      option:{locale:"en"}
+    }
+  },
+  rollupExternal:['element-ui','element-ui/lib/index.js'],
+  rollupGlobals:{"element-ui/lib/index.js":"ELEMENT"}
+  // rollupGlobals:{"element-ui":"ELEMENT"}
 }
