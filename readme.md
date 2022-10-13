@@ -5,7 +5,7 @@ vue2 sfc 文件的编译工具。 基于rollup。
 ### 安装
 
   ```
-  npm i vuesfcbuilder -s
+  npm i vuesfc -s
 
   ```
 
@@ -43,8 +43,6 @@ export default {
 }
 ```
 
-程序运行时依据`process.env.NODE_ENV`环境变量来决定vue编译的模式，可选参数为：`production`（默认） 和 `development`。 开发模式下会实时监控文件变化
-
 #### app页面模板文件
 
 项目根目录下可以创建`app.template.html`文件来自定义页面模板，默认为：
@@ -69,26 +67,27 @@ export default {
  编译所有page，自动整合相关组件，生成客户端和服务端代码，以供渲染使用。`page`,`layout`,`component` 生成的服务器端渲染js中会自动包含css的注入， 客户端js中不包含css. 第三方模块可以自定义meta信息注入。 
   
   ```
-  import {compiler} from "vuesfcbuilder"
+  import {compiler} from "vuesfc"
   /**
   *编译vue项目，开发模式下会实时监控变动
   * @export
   * @param {function} onBuildComplier 编译完成之后的回调
+  * @param {boolean} [isDev=false] 是否开发模式
   */
-  compiler(onFinished)
+  compiler(onFinished,true)
   ```
 
  编译最终文件的输出根目录`rootDist`可以用做静态服务提供，及项目编译后的资源manifest文件`versPath`
 
  ```
-  import {rootDist,versPath} from "vuesfcbuilder"
+  import {rootDist,versPath} from "vuesfc"
 
  ```
 
 #### ::renderer 渲染页面
 
   ```
-  import  {renderer} from "vuesfcbuilder";
+  import  {renderer} from "vuesfc";
 
   /**
   * 渲染页面,须在编译完成后执行
@@ -114,7 +113,7 @@ export default {
 只返回页面对应的数据及页面对应的客户端js&css数据，可从配合前端通过`App.setAsyncPage`动态渲染页面
 
 ```
-  import  {getRenderInfo} from "vuesfcbuilder";
+  import  {getRenderInfo} from "vuesfc";
 
   /**
   * 可单独用于前端动态获取页面对应的page组件相关style,script信息和asyncData处理数据（如果有的话）。

@@ -1,7 +1,7 @@
 import {join} from "path"
 import deepmerge from "deepmerge"
 import write from "write"
-import { getAbsolutePath,logger,distRootDir,clientManifestPath,saveRuntimeConfig,runtimeRollupConfigPath,compilerTemplate} from "./src/utils.js"
+import { getAbsolutePath,logger,distRootDir,clientManifestPath,saveRuntimeConfig,runtimeRollupConfigPath,compilerTemplate,getRuntimeConfig} from "./src/utils.js"
 import {compiler as moduleCompiler} from "./src/module.js"
 import appCompiler from "./src/buildapp.js"
 import sfcCompiler from "./src/buildsfc.js"
@@ -11,10 +11,11 @@ import {renderer,getRenderInfo} from "./src/render.js"
  *编译vue项目，开发模式下会实时监控变动
  * @export
  * @param {function} onFinished 编译完成之后的回调
+ * @param {boolean} [isDev=false] 是否开发模式
  */
-async function compiler(onFinished){
+async function compiler(onFinished,isDev=false){
   // 1 初始化并生成本地配置文件
-  const config = await initConfig()
+  const config = await initConfig(isDev)
   if(!config){return}
   // 2 预编译第三方模块
   await moduleCompiler(config.buildModules,config.dst_root,config.moduleLoaderSSRPath,config.moduleLoaderClientPath)
@@ -36,7 +37,7 @@ async function compiler(onFinished){
  * 初始化生成配置文件，供rollup.config.mjs直接使用
  * @returns object
  */
-async function initConfig(){
+async function initConfig(isDev){
   try{
     // 读取本地配置文件并合并
     const localConfig = await import(getAbsolutePath('vuesfc.config.js')).then(m=>{
@@ -56,7 +57,7 @@ async function initConfig(){
       return
     }
     const config = deepmerge(defConfig,localConfig)
-    config.isDev = process.env.NODE_ENV=='development'
+    config.isDev = isDev
     // 将路径部分设成绝对路径
     config.source_page = getAbsolutePath(config.source_page)
     config.source_layout = getAbsolutePath(config.source_layout)
@@ -84,4 +85,4 @@ async function initConfig(){
 }
 
 // export
-export {distRootDir as rootDist ,clientManifestPath as versPath,compiler,renderer,getRenderInfo}
+export {distRootDir as rootDist ,clientManifestPath as versPath,getRuntimeConfig,compiler,renderer,getRenderInfo}
