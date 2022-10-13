@@ -5,10 +5,7 @@ import Notifications from 'vue-notification/dist/ssr.js'
 <%}else{%>
 import Notifications from 'vue-notification'
 <%}%>
-  
 Vue.use(Notifications)
-// Vue.use(Notifications,<%=JSON.stringify(options)%> )
-
 // 必须导出默认函数
 export default function(){
   return {}

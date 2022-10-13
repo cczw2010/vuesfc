@@ -20,12 +20,6 @@ export default {
         {name: 'viewport', content: 'width=device-width, initial-scale=1' },
         {name: 'keywords', content: 'test' }
       ],
-      // link: [
-      //   { rel: 'favicon', href: 'favicon.ico' }
-      // ],
-      // script: [
-      //   { src: 'https://cdn.jsdelivr.net/npm/vue@2.6.14' },
-      // ],
   },
   asyncData(data){
     return {

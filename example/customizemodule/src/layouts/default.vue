@@ -21,9 +21,11 @@ export default {
         {name: 'viewport', content: 'width=device-width, initial-scale=1' },
         {name: 'keywords', content: 'test' }
       ],
-      // script: [
-      //   { src: 'https://cdn.jsdelivr.net/npm/vue@2.6.14' },
-      // ],
+  },
+  data(){
+    return {
+      title:'custom third build module demo'
+    }
   }
 }
 </script>

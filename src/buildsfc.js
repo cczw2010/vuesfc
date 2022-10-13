@@ -11,7 +11,7 @@ const pageManifest = {
 }
 const pageRelativeFiles = {}
 // ============================================= watcher
-export default async function(config,isWatching=false,onFinished){
+export default async function(config,onFinished){
   Object.assign(pageManifest,{
       'root':config.dst_root,
       'app':{
@@ -48,7 +48,7 @@ export default async function(config,isWatching=false,onFinished){
     }
     logger.success("page complier finished")
     await writeManifest(pageManifest)
-    if(isWatching){
+    if(config.isDev){
       logger.ready("waiting for change...")
       watcher.on('add', async filepath =>{
         await changeOpVueSFC(filepath,config)

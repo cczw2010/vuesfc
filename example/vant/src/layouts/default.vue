@@ -18,10 +18,7 @@ export default {
         {charset: 'utf-8'},
         {name: 'viewport', content: 'width=device-width, initial-scale=1' },
         {name: 'keywords', content: 'test' }
-      ],
-      // script: [
-      //   { src: 'https://cdn.jsdelivr.net/npm/vue@2.6.14' },
-      // ],
+      ]
   },
 }
 </script>

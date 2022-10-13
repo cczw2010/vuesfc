@@ -1,6 +1,5 @@
 import {compiler} from "vuesfc"
-
-const isWatching = process.argv[2]=="-w"
+process.env.NODE_ENV = 'development'
 compiler((manifest)=>{
       console.log(manifest)
-    },isWatching)
+    })

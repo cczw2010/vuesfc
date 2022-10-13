@@ -28,7 +28,6 @@ async function getRenderData(pagePath,...params){
   await init()
   //1 根据manifest分别获取 应用，page，layout信息
   if(!manifestInfo){return false}
-
   const appInfo = await getAppInfo()
   if(!appInfo){
     return false
@@ -65,19 +64,12 @@ async function getRenderData(pagePath,...params){
   }
 
   // 5 注入页面相关css&js
-  let metas = {script:[{src:Config.vueUrl}]}
   const appMeta = await getAppInjectMeta(appInfo)
   const layoutMeta = await getComponentInjectMeta(layoutInfo,true)
   if(!layoutMeta){return}
   const pageMeta = await getComponentInjectMeta(pageInfo)
   if(!pageMeta){return}
-
-  const {metas:moduleMeta} = await import(Config.moduleLoaderSSRPath)
-  for (const mkey in moduleMeta) {
-    metas = deepmerge(metas,moduleMeta[mkey])
-  }
-  // app要在module加载完之后
-  metas = deepmerge(metas,appMeta)
+  let metas = Object.assign({},appMeta)
   metas = deepmerge(metas,dataMeta)
   metas = deepmerge(metas,layoutMeta)
   metas = deepmerge(metas,pageMeta)
@@ -85,10 +77,10 @@ async function getRenderData(pagePath,...params){
   set(metas)
   const metaInfo = app.$meta().inject()
   const appData = {
-    HTML_ATTRS:metaInfo.htmlAttrs.text(Config.isDev),
+    HTML_ATTRS:metaInfo.htmlAttrs.text(true),
     HEAD_ATTRS:metaInfo.headAttrs.text(),
     BODY_ATTRS:metaInfo.bodyAttrs.text(),
-    HEAD:metaInfo.head(Config.isDev),
+    HEAD:metaInfo.head(true),
     APP:`<div id="__app">${html}</div>`
   }
   return appData

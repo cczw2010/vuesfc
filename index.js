@@ -7,14 +7,12 @@ import appCompiler from "./src/buildapp.js"
 import sfcCompiler from "./src/buildsfc.js"
 import defConfig from "./config.js"
 import {renderer,getRenderInfo} from "./src/render.js"
-import { readFile,copyFile } from "fs/promises"
 /**
- *编译vue sfc方法，支持监控变动
+ *编译vue项目，开发模式下会实时监控变动
  * @export
- * @param {function} onFinished 第一次编译完成之后的回调
- * @param {boolean} isWatching  是否持续监控文件并实时编译相关的页面
+ * @param {function} onFinished 编译完成之后的回调
  */
-async function compiler(onFinished,isWatching){
+async function compiler(onFinished){
   // 1 初始化并生成本地配置文件
   const config = await initConfig()
   if(!config){return}
@@ -31,7 +29,7 @@ async function compiler(onFinished,isWatching){
     return 
   }
   // 4 执行编译  需要初始化配置信息之后，所以动态加载
-  result = await sfcCompiler(config,isWatching,onFinished)
+  result = await sfcCompiler(config,onFinished)
 }
 
 /**
@@ -58,6 +56,7 @@ async function initConfig(){
       return
     }
     const config = deepmerge(defConfig,localConfig)
+    config.isDev = process.env.NODE_ENV=='development'
     // 将路径部分设成绝对路径
     config.source_page = getAbsolutePath(config.source_page)
     config.source_layout = getAbsolutePath(config.source_layout)

@@ -6,7 +6,10 @@ export default {
   // 自定义component源码目录
   source_component: "src/components",
   buildModules:{
-    '~/modules/notifications.js':{},
-    '~/modules/togglebutton.js': {}
-  }
+    "~/modules/antdv.js":{}
+  },
+  injectStyle:true, 
+  injectScript:true,
+  // rollup
+  rollupExternal:['ant-design-vue'],
 }

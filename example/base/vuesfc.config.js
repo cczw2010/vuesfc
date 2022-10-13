@@ -1,5 +1,4 @@
 export default {
-  isDev:true,
   // page源码目录
   source_page:"./src/pages",
   // layout源码目录

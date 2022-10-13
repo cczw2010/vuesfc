@@ -12,13 +12,38 @@ vue2 sfc 文件的编译工具。 基于rollup。
 ### 配置
 
 #### `vuesfc.config.js`
-项目根目录下可以创建`vuesfc.config.js`文件来自定义配置，默认配置请查看库根目录下的`vuesfc.config.js`文件。 格式如下：
+项目根目录下可以创建`vuesfc.config.js`文件来自定义配置，默认配置请查看库根目录下的`vuesfc.config.js`文件。 默认如下：
 
 ```
 export default {
+  pageComponentName:"customPage",
+  //是否将页面相关源码内的样式和客户端js直接注入到页面上,两种方式：
+  //boolean是否直接入注入页面|string 一个router作为路由前缀，作为外联注入页面，实际地址为：${injectStyle}/fileRelativePathtoDstRoot
+  injectStyle:true, 
+  injectScript:true,
+  // sfc源文件后缀
+  source_ext:'.vue',
+  // page源码目录
+  source_page:"pages",
+  // layout源码目录
+  source_layout: "layouts",
+  // 自定义component源码目录
+  source_component: "components",
+  // vue-meta设置
+  vuemeta:{...},
+  // 需要参与编译渲染的第三方的module配置
+  buildModules:{
+  },
+  // 注入页面的vuejs地址
+  vueUrl:'https://cdn.jsdelivr.net/npm/vue@2.7.10',
+  //rollup 相关 ，可扩展以下两个属性，配合自定义modules
+  rollupExternal:[],
+  rollupGlobals:{},
   ...
 }
 ```
+
+程序运行时依据`process.env.NODE_ENV`环境变量来决定vue编译的模式，可选参数为：`production`（默认） 和 `development`。 开发模式下会实时监控文件变化
 
 #### app页面模板文件
 
@@ -43,18 +68,14 @@ export default {
 
  编译所有page，自动整合相关组件，生成客户端和服务端代码，以供渲染使用。`page`,`layout`,`component` 生成的服务器端渲染js中会自动包含css的注入， 客户端js中不包含css. 第三方模块可以自定义meta信息注入。 
   
-  第二个参数可以设定为监控模式，监控文件变化
-
   ```
   import {compiler} from "vuesfcbuilder"
   /**
-  *编译vue sfc方法，支持监控变动
+  *编译vue项目，开发模式下会实时监控变动
   * @export
-  * @param {boolean} isWatching  是否持续监控文件并实时编译相关的页面
-  * @param {object} options 参数配置，参考根目录下`config.js`文件默认配置
-  * @param {function} onBuildComplier 第一次编译完成之后的回调
+  * @param {function} onBuildComplier 编译完成之后的回调
   */
-  compiler(isWatching=false,options,onFinished)
+  compiler(onFinished)
   ```
 
  编译最终文件的输出根目录`rootDist`可以用做静态服务提供，及项目编译后的资源manifest文件`versPath`

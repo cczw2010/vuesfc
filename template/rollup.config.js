@@ -59,7 +59,7 @@ const pluginClient = plugins.slice()
 pluginClient.splice(4,0,
   postcss({
     extract: true,
-    minimize:!Config.isDev,
+    minimize:true,
     sourceMap:false,
     extensions: ['.css','.scss','.sass','.styl','.less'],
     plugins:[autoprefixer()],

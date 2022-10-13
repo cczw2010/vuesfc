@@ -1,5 +1,9 @@
 import Vue from 'vue'
 import {injects} from "<%=options.moduleLoaderPath%>"
+<%if(options.ssr){%>
+import deepmerge from "deepmerge"
+import {metas} from "<%=options.moduleLoaderPath%>"
+<%}%>
 let instance = null
 const globalData ={
   layoutName:'',
@@ -43,8 +47,15 @@ function setCustomMixin(component,asyncData=null,isLayout=false){
  * @returns app vm
  */
 export function createApp(){
+  let head = {}
+  <%if(options.ssr){%>
+    head = {script:[{src:'<%=options.vueUrl%>'}]}
+    for (const mkey in metas) {
+      head = deepmerge(head,metas[mkey])
+    }
+  <%}%>
   instance =  new Vue({
-    head:{},
+    head,
     data(){
       return globalData
     },

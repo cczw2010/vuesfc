@@ -1,6 +1,5 @@
-// 默认参数，路径相对于项目根目录
 export default {
-  isDev:true,
+  isDev:false,
   // ============================================================ render相关,不建议修改
   // 应用名称
   appName:"App",
@@ -32,7 +31,7 @@ export default {
     keyName:'head',
     tagIDKeyName:'vmid',
     ssrAppId:'app',
-    ssrAttribute:'data-vm-ssr',
+    ssrAttribute:'data-vmssr',
     attribute:'data-vm'
   },
   // 需要参与编译渲染的第三方的module配置

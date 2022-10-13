@@ -5,14 +5,16 @@
   "main": "builder.js",
   "type": "module",
   "dependencies": {
-    "ant-design-vue": "^1.7.8",
-    "vue":"^2.6.14",
-    "vuesfcbuilder": "^1.4.1",
+    "vue": "^2.6.14",
+    "vuesfc": "link:../..",
     "write": "^2.0.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "ant-design-vue": "1.7.8"
+  }
 }
