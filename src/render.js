@@ -65,16 +65,18 @@ async function getRenderData(pagePath,...params){
   }
 
   // 5 注入页面相关css&js
-  let metas = {}
+  let metas = {script:[{src:Config.vueUrl}]}
   const appMeta = await getAppInjectMeta(appInfo)
   const layoutMeta = await getComponentInjectMeta(layoutInfo,true)
   if(!layoutMeta){return}
   const pageMeta = await getComponentInjectMeta(pageInfo)
   if(!pageMeta){return}
+
   const {metas:moduleMeta} = await import(Config.moduleLoaderSSRPath)
   for (const mkey in moduleMeta) {
     metas = deepmerge(metas,moduleMeta[mkey])
   }
+  // app要在module加载完之后
   metas = deepmerge(metas,appMeta)
   metas = deepmerge(metas,dataMeta)
   metas = deepmerge(metas,layoutMeta)

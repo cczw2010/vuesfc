@@ -11,16 +11,16 @@ import replace from "@rollup/plugin-replace"
 import progress from 'rollup-plugin-progress'
 import { terser } from "rollup-plugin-terser" 
 import {readFile} from "fs/promises"
-import {logger,compilerTemplate,distRootDir,getAbsolutePath} from "./utils.js"
+import {logger,compilerTemplate,distRootDir} from "./utils.js"
 
 const appId = "@app.js"
 function getInputOption(config,isSsr){
+  // vue默认runtime，前端打包的vue源码要用完整版本
+  const aliasEntriesSsr = { vue:'vue/dist/vue.esm.js'}
+  const aliasEntriesClient = {}
   const plugins = [
-    !isSsr&&alias({
-      // vue默认runtime，前端打包的vue源码要用完整版本
-      entries: {
-        vue:'vue/dist/vue.esm.js'
-      }
+    alias({
+      entries: isSsr?aliasEntriesSsr:aliasEntriesClient
     }),
     resolve({
       preferBuiltins: true,
@@ -58,12 +58,12 @@ function getOutputOption(config,isSsr){
   return {
     file:outFile,
     format,
-    chunkFileNames:'[name]-[hash]-[format].js',
-    entryFileNames:'[name]-[hash]-[format].js',
-    name:config.appName,
     inlineDynamicImports:true,
+    // chunkFileNames:'[name]-[hash]-[format].js',
+    // entryFileNames:'[name]-[hash]-[format].js',
+    name:config.appName,
     sourcemap:false,
-    banner: isSsr?'':'/* base js for app , by vuesfcbuilder*/',
+    banner: isSsr?'':'/* base js for app , by vuesfcbuilder*/'
   }
 }
 /**
@@ -76,10 +76,9 @@ function getOutputOption(config,isSsr){
 export default async function compiler(config,ssr){
   const inputOptions = getInputOption(config,ssr)
   const outputOptions = getOutputOption(config,ssr)
-  let external = ssr?['vue','vue-meta']:[]
+  let external = ssr?['vue','vue-meta']:['vue']
   external = external.concat(config.rollupExternal||[])
-  // let clientGlobals = ssr?{"vue":"Vue"}:{}
-  let clientGlobals = {}
+  let clientGlobals = {'vue':'Vue'}
   Object.assign(clientGlobals,config.rollupGlobals)
 
   inputOptions.external = external

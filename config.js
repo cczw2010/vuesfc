@@ -38,6 +38,8 @@ export default {
   // 需要参与编译渲染的第三方的module配置
   buildModules:{
   },
+  // 注入页面的vuejs地址
+  vueUrl:'https://cdn.jsdelivr.net/npm/vue@2.7.10',
   //rollup 相关 ，可扩展以下两个属性，配合自定义modules
   rollupExternal:[],
   rollupGlobals:{}

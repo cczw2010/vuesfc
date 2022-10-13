@@ -7,6 +7,7 @@ import appCompiler from "./src/buildapp.js"
 import sfcCompiler from "./src/buildsfc.js"
 import defConfig from "./config.js"
 import {renderer,getRenderInfo} from "./src/render.js"
+import { readFile,copyFile } from "fs/promises"
 /**
  *编译vue sfc方法，支持监控变动
  * @export
@@ -69,10 +70,12 @@ async function initConfig(){
     config.appSSRPath = "app.server.js"
     config.appClientPath = "app.bundle.js"
     config.dst_ext = ".js"
+    // 保存config.js
     await saveRuntimeConfig(config)
-     // 生成rollup.config.js文件
+    // 生成rollup.config.js文件
     const rollupDst = await compilerTemplate(getAbsolutePath("./template/rollup.config.js",true),config)
     await write(runtimeRollupConfigPath,rollupDst)
+    
     logger.info("config initialize ok")
     return config
   }catch(e){
