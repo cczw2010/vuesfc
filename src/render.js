@@ -1,7 +1,8 @@
 // 编译后的文件 渲染
 import {join,extname} from "path"
 import {createRenderer} from "vue-server-renderer"
-import { readFile} from "fs/promises"
+import { readFile,access} from "fs/promises"
+import {constants} from "fs"
 import deepmerge from "deepmerge"
 import VueMeta from 'vue-meta'
 import template from "lodash.template"
@@ -111,16 +112,22 @@ export async function getRenderInfo(pagePath,...params){
   result.id = pageInfo.id
   result.layout = pageInfo.layout
   // style ， sfc文件中不包含该代码块，也可能是不存在的
-  if(pageInfo.cssUrl){
-    result.style = pageInfo.cssUrl
-  }else{
-    result.style = await readFile(pageInfo.cssPath).then(code=>code.toString("utf-8")).catch(e=>'')
+  const cssCanRead = await access(pageInfo.cssPath,constants.R_OK).then(no=>true).catch(e=>false)
+  if(cssCanRead){
+    if(pageInfo.cssUrl){
+      result.style = pageInfo.cssUrl
+    }else{
+      result.style = await readFile(pageInfo.cssPath).then(code=>code.toString("utf-8")).catch(e=>'')
+    }
   }
   // js ， sfc文件中不包含该代码块，也可能是不存在的
-  if(pageInfo.jsUrl){
-    result.script = pageInfo.jsUrl
-  }else{
-    result.script= await readFile(pageInfo.jsPath).then(code=>code.toString("utf-8")).catch(e=>'')
+  const jsCanRead = await access(pageInfo.jsPath,constants.R_OK).then(no=>true).catch(e=>false)
+  if(jsCanRead){
+    if(pageInfo.jsUrl){
+      result.script = pageInfo.jsUrl
+    }else{
+      result.script= await readFile(pageInfo.jsPath).then(code=>code.toString("utf-8")).catch(e=>'')
+    }
   }
   // 2 初始化异步数据
   const dataPage = await asyncData(pageInfo.module,...params)
@@ -237,18 +244,24 @@ async function getComponentInjectMeta(componentInfo){
   const assetsMeta = {script:[],link:[],style:[]}
   try{
     // style,sfc文件中不包含该代码块，也可能是不存在的
-    if(componentInfo.cssUrl){
-      assetsMeta.link.push({ rel: 'stylesheet', href:componentInfo.cssUrl })
-    }else{
-      const cssStyle = await readFile(componentInfo.cssPath).then(code=>code.toString("utf-8")).catch(e=>'')
-      assetsMeta.style.push({ cssText: cssStyle, type: 'text/css' })
+    const cssCanRead = await access(componentInfo.cssPath,constants.R_OK).then(no=>true).catch(e=>false)
+    if(cssCanRead){
+      if(componentInfo.cssUrl){
+        assetsMeta.link.push({ rel: 'stylesheet', href:componentInfo.cssUrl })
+      }else{
+        const cssStyle = await readFile(componentInfo.cssPath).then(code=>code.toString("utf-8")).catch(e=>'')
+        assetsMeta.style.push({ cssText: cssStyle, type: 'text/css' })
+      }
     }
     // js ,sfc文件中不包含该代码块，也可能是不存在的
-    if(componentInfo.jsUrl){
-      assetsMeta.script.push({src:componentInfo.jsUrl,body: false})
-    }else{
-      const jsCode = await readFile(componentInfo.jsPath).then(code=>code.toString("utf-8")).catch(e=>'')
-      assetsMeta.script.push({innerHTML: jsCode,type: 'text/javascript',body: false})
+    const jsCanRead = await access(componentInfo.jsPath,constants.R_OK).then(no=>true).catch(e=>false)
+    if(jsCanRead){
+      if(componentInfo.jsUrl){
+        assetsMeta.script.push({src:componentInfo.jsUrl,body: false})
+      }else{
+        const jsCode = await readFile(componentInfo.jsPath).then(code=>code.toString("utf-8")).catch(e=>'')
+        assetsMeta.script.push({innerHTML: jsCode,type: 'text/javascript',body: false})
+      }
     }
     return assetsMeta
   }catch(e){
