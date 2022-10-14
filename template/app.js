@@ -28,7 +28,7 @@ function setCustomMixin(component,asyncData=null,isLayout=false){
         // asyncData
         const realData = window['<%=options.stateWindowKey%>']||null
         if(realData){
-          asyncData = isLayout?realData.layout:realData.page
+          asyncData = isLayout?realData.layout[globalData.layoutName]:realData.page[globalData.pageName]
         }
       }
       if(asyncData){
@@ -103,9 +103,9 @@ export function setLayout(componetName,vm=null,asyncData=null){
   }
   // 动态加载其他页面, 数据信息由库提供的 getRenderInfo 方法返回
   export function setAsyncPage(renderInfo){
-    const {id,layout,state,style,script} = renderInfo
+    const {id,state,style,script} = renderInfo
     // state
-    Object.assign(<%=options.stateWindowKey%>,state)
+    window['<%=options.stateWindowKey%>'].page[id] = state.page
     // styles
     if(style){
       let domStyle = null

@@ -46,7 +46,10 @@ async function getRenderData(pagePath,...params){
   const dataPage = await asyncData(pageInfo.module,...params)
   const dataMeta = {script:[{
       vmid:'json',
-      innerHTML: `window.${Config.stateWindowKey} = {layout:${JSON.stringify(dataLayout)},page:${JSON.stringify(dataPage)}}`,
+      innerHTML: `window['${Config.stateWindowKey}'] = {
+        layout:{${layoutInfo.id}:${JSON.stringify(dataLayout)}},
+        page:{${pageInfo.id}:${JSON.stringify(dataPage)}}
+      }`,
       type: 'text/javascript',
     }],__dangerouslyDisableSanitizersByTagID:{
       json: ['innerHTML']
@@ -119,7 +122,6 @@ export async function getRenderInfo(pagePath,...params){
   }else{
     result.script= await readFile(pageInfo.jsPath).then(code=>code.toString("utf-8"))
   }
-  
   // 2 初始化异步数据
   const dataPage = await asyncData(pageInfo.module,...params)
   result.state.page = dataPage
