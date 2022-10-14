@@ -76,7 +76,7 @@ function getOutputOption(config,isSsr){
 export default async function compiler(config,ssr){
   const inputOptions = getInputOption(config,ssr)
   const outputOptions = getOutputOption(config,ssr)
-  let external = ssr?['vue','vue-meta']:['vue']
+  let external = ssr?['vue','vue-meta','deepmerge']:['vue']
   external = external.concat(config.rollupExternal||[])
   let clientGlobals = {'vue':'Vue'}
   Object.assign(clientGlobals,config.rollupGlobals)
