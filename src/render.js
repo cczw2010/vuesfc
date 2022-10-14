@@ -110,17 +110,17 @@ export async function getRenderInfo(pagePath,...params){
   }
   result.id = pageInfo.id
   result.layout = pageInfo.layout
-  // style
+  // style ， sfc文件中不包含该代码块，也可能是不存在的
   if(pageInfo.cssUrl){
     result.style = pageInfo.cssUrl
   }else{
-    result.style = await readFile(pageInfo.cssPath).then(code=>code.toString("utf-8"))
+    result.style = await readFile(pageInfo.cssPath).then(code=>code.toString("utf-8")).catch(e=>'')
   }
-  // js 
+  // js ， sfc文件中不包含该代码块，也可能是不存在的
   if(pageInfo.jsUrl){
     result.script = pageInfo.jsUrl
   }else{
-    result.script= await readFile(pageInfo.jsPath).then(code=>code.toString("utf-8"))
+    result.script= await readFile(pageInfo.jsPath).then(code=>code.toString("utf-8")).catch(e=>'')
   }
   // 2 初始化异步数据
   const dataPage = await asyncData(pageInfo.module,...params)
@@ -236,18 +236,18 @@ async function getComponentInjectMeta(componentInfo){
   // 设定layout和page对象
   const assetsMeta = {script:[],link:[],style:[]}
   try{
-    // style
+    // style,sfc文件中不包含该代码块，也可能是不存在的
     if(componentInfo.cssUrl){
       assetsMeta.link.push({ rel: 'stylesheet', href:componentInfo.cssUrl })
     }else{
-      const cssStyle = await readFile(componentInfo.cssPath).then(code=>code.toString("utf-8"))
+      const cssStyle = await readFile(componentInfo.cssPath).then(code=>code.toString("utf-8")).catch(e=>'')
       assetsMeta.style.push({ cssText: cssStyle, type: 'text/css' })
     }
-    // js 
+    // js ,sfc文件中不包含该代码块，也可能是不存在的
     if(componentInfo.jsUrl){
       assetsMeta.script.push({src:componentInfo.jsUrl,body: false})
     }else{
-      const jsCode = await readFile(componentInfo.jsPath).then(code=>code.toString("utf-8"))
+      const jsCode = await readFile(componentInfo.jsPath).then(code=>code.toString("utf-8")).catch(e=>'')
       assetsMeta.script.push({innerHTML: jsCode,type: 'text/javascript',body: false})
     }
     return assetsMeta
