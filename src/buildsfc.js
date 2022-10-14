@@ -128,13 +128,16 @@ async function complierVueSFC(fpath,config){
          if(outputItem.type == 'asset' ){
           pageJson.cssVer = md5(outputItem.source)
          }else if(outputItem.type =="chunk" && outputItem.isEntry){
-          // 解析js代码块,获取其中的layout
+          // 解析js代码块,获取其中的layout & asyncData
+          const result = {asyncData:false}
+          if(ftype=='page'){result.layout="default"}
           for (const key in outputItem.modules) {
             if(key == fpath+'?rollup-plugin-vue=script.js'){
-              const result = checkSource(outputItem.modules[key].code,ftype=='page')
-              Object.assign(pageJson,result)
+              const sourceResult = checkSource(outputItem.modules[key].code,ftype=='page')
+              Object.assign(result,sourceResult)
             }
           }
+          Object.assign(pageJson,result)
           // 因为rollup-plugin-vue 中 如果style块是scope那么在js中的定义会增加scopeid会根据源码生成导致js文件hash变化
           pageJson.jsVer = md5(outputItem.code)
          }
