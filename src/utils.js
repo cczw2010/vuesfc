@@ -56,7 +56,7 @@ export async function saveRuntimeConfig(config){
 // 获取项目生成的最终运行时配置文件
 export async function getRuntimeConfig(){
   return await import(runtimeConfigPath).then(m=>m.default).catch(e=>{
-    logger.error("vue config get error. you must run build first for vue builder.\n")
+    logger.error("vue runtime config get error. you must run [compiler] first.\n")
     process.exit(1)
   })
 }

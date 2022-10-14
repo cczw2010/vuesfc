@@ -7,10 +7,7 @@ export default {
   // 自定义component源码目录
   source_component: "src/components",
   // 可根据配置文件目标文件目录生成静态服务器，此处设置为外链url引入前缀，
-  // injectStyle:'/static', 
-  // injectScript:'/static',
-  injectStyle:true, 
-  injectScript:true,
+  // injectPath:'/static', 
   buildModules:{
     '~/modules/vuetify.js':{
       // 自定义meta 引入相关 css 和 js资源

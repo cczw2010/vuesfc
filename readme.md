@@ -16,11 +16,24 @@ vue2 sfc 文件的编译工具。 基于rollup。
 
 ```
 export default {
+  // ============================================================ render相关,不建议修改
+  // 应用名称
+  appName:"App",
+  // page组件的组件名
   pageComponentName:"customPage",
-  //是否将页面相关源码内的样式和客户端js直接注入到页面上,两种方式：
-  //boolean是否直接入注入页面|string 一个router作为路由前缀，作为外联注入页面，实际地址为：${injectStyle}/fileRelativePathtoDstRoot
-  injectStyle:true, 
-  injectScript:true,
+  // window下当前layout和page组件名称对应的变量名
+  layoutNameKey:"__layoutName",
+  pageNameKey:"__pageName",
+  // 前端state数据的windowskey
+  stateWindowKey:'__INITIAL_STATE__',
+  // meta数据windowskey
+  metaWindowKey:'__INITIAL_META__',
+  // 组件js&css文件注入页面的url前缀,eg:'/static'. 页面上资源实际地址为：${injectPath}/page[layout]-hash-bundle.[js|css]
+  // 如果设置为false，代码将直接注入页面
+  injectUrl:false, 
+  // 注入页面的vuejs地址
+  vueUrl:'https://cdn.jsdelivr.net/npm/vue@2.7.10',
+  // ============================================================= complier 编译相关
   // sfc源文件后缀
   source_ext:'.vue',
   // page源码目录
@@ -30,16 +43,19 @@ export default {
   // 自定义component源码目录
   source_component: "components",
   // vue-meta设置
-  vuemeta:{...},
+  vuemeta:{
+    keyName:'head',
+    tagIDKeyName:'vmid',
+    ssrAppId:'app',
+    ssrAttribute:'data-vmssr',
+    attribute:'data-vm'
+  },
   // 需要参与编译渲染的第三方的module配置
   buildModules:{
   },
-  // 注入页面的vuejs地址
-  vueUrl:'https://cdn.jsdelivr.net/npm/vue@2.7.10',
   //rollup 相关 ，可扩展以下两个属性，配合自定义modules
   rollupExternal:[],
-  rollupGlobals:{},
-  ...
+  rollupGlobals:{}
 }
 ```
 
@@ -96,16 +112,6 @@ export default {
   * @returns  html|false
   */
   const html = await renderer("home.vue",{title:'test'},...)
-  ```
-
- 
-  为了更好的控制输出，配置文件提供了`injectStyle`和 `injectScript`选项来控制页面的代码输出。
-
-  ```
-  <!-- boolean代表是否输出到页面上，string类型代表输出外链的前缀，用户可以根据配置文件中的项目输出根目录生成静态访问服务器，且1.3.4版本开始支持版本化 -->
-  injectStyle: boolean|string    //default:true
-  injectScript: boolean|string   //default:true
-
   ```
 
 #### ::getRenderInfo 获取页面信息

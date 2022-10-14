@@ -10,6 +10,7 @@ const globalData ={
   pageName:''
 }
 const EventReady = 'apploadfinished'
+const EventAsyncPageReady = 'asyncpageloadfinished'
 // layout中显示page的组件
 Vue.component('<%=options.pageComponentName%>', {
   data(){
@@ -102,30 +103,35 @@ export function setLayout(componetName,vm=null,asyncData=null){
   }
   // 动态加载其他页面, 数据信息由库提供的 getRenderInfo 方法返回
   export function setAsyncPage(renderInfo){
-    const {state,style,script} = renderInfo
+    const {id,layout,state,style,script} = renderInfo
     // state
     Object.assign(<%=options.stateWindowKey%>,state)
     // styles
     if(style){
       let domStyle = null
-      <%if(options.injectStyle===true){%>
-        domStyle = document.createElement("style")
-        domStyle.innerHTML = style
-      <%}else{%>
+      <%if(options.injectUrl){%>
         domStyle = document.createElement("link")
         domStyle.href = style
+      <%}else{%>
+        domStyle = document.createElement("style")
+        domStyle.innerHTML = style
       <%}%>
       document.head.appendChild(domStyle)
     }
     // script
     if(script){
       const domScript = document.createElement("script")
-      <%if(options.injectScript===true){%>
-        domScript.innerHTML = script
-      <%}else{%>
+      <%if(options.injectUrl===true){%>
         domScript.src = script
+        domScript.onload = function(){
+          <%=options.appName%>.__sendEvent(EventAsyncPageReady,id)
+        }
+        document.head.appendChild(domScript)
+      <%}else{%>
+        domScript.innerHTML = script
+        document.head.appendChild(domScript)
+        <%=options.appName%>.__sendEvent(EventAsyncPageReady,id)
       <%}%>
-      document.head.appendChild(domScript)
     }
   }
   // 注册事件, EventReady, 应用初次加载并初始化完成
@@ -150,7 +156,7 @@ export function setLayout(componetName,vm=null,asyncData=null){
     setLayout(<%=options.layoutNameKey%>) 
     setPage(<%=options.pageNameKey%>)
     // page的bundle.js中最后会注入触发该事件的代码
-    window.addEventListener('asyncpageloadfinished',function(e){
+    window.addEventListener(EventAsyncPageReady,function(e){
       setPage(e.detail) 
     })
     // init

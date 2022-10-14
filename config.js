@@ -1,5 +1,4 @@
 export default {
-  isDev:false,
   // ============================================================ render相关,不建议修改
   // 应用名称
   appName:"App",
@@ -12,11 +11,11 @@ export default {
   stateWindowKey:'__INITIAL_STATE__',
   // meta数据windowskey
   metaWindowKey:'__INITIAL_META__',
-  //是否将页面相关源码内的样式和客户端js直接注入到页面上,两种方式：
-  //1 boolean  是否直接入注入页面
-  //2 string 一个router作为路由前缀，作为外联注入页面，实际地址为：${router}/fileRelativePathtoDstRoot
-  injectStyle:true, 
-  injectScript:true,
+  // 组件js&css文件注入页面的url前缀,eg:'/static'. 页面上资源实际地址为：${injectPath}/page[layout]-hash-bundle.[js|css]
+  // 如果设置为false，代码将直接注入页面
+  injectUrl:false, 
+  // 注入页面的vuejs地址
+  vueUrl:'https://cdn.jsdelivr.net/npm/vue@2.7.10',
   // ============================================================= complier 编译相关
   // sfc源文件后缀
   source_ext:'.vue',
@@ -37,8 +36,6 @@ export default {
   // 需要参与编译渲染的第三方的module配置
   buildModules:{
   },
-  // 注入页面的vuejs地址
-  vueUrl:'https://cdn.jsdelivr.net/npm/vue@2.7.10',
   //rollup 相关 ，可扩展以下两个属性，配合自定义modules
   rollupExternal:[],
   rollupGlobals:{}

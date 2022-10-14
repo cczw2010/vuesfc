@@ -8,8 +8,6 @@ export default {
   buildModules:{
     "~/modules/antdv.js":{}
   },
-  injectStyle:true, 
-  injectScript:true,
   // rollup
   rollupExternal:['ant-design-vue'],
 }

@@ -1,7 +1,6 @@
 import {join} from "path"
 import chokidar  from "chokidar"
 import {rollup} from "rollup"
-// import * as acorn from "acorn"
 import {parse as acornParse} from "acorn"
 import loadConfigFile from "rollup/loadConfigFile"
 import {logger,getAbsolutePath,isComponent,runtimeRollupConfigPath,md5,getVueFileInfo,writeManifest, getSfcType } from "./utils.js"
@@ -116,11 +115,6 @@ async function complierVueSFC(fpath,config){
     const outputOption = option.output[0]
     outputOption.file = join(config.dst_root,isSsr?pageInfo.dstServerJs:pageInfo.dstClientJs)
     outputOption.name = pageInfo.id
-    // 3 如果是page的客户端，注入page文件加载完成事件
-    if(ftype=='page' && !isSsr){
-      // outputOption.footer = `${config.appName}.__sendEvent('asyncpageloadfinished','${pageInfo.id}')`
-    }
-    // outputOption.name = pageInfo.type=='layout'?config.layoutComponentName:config.pageComponentName
     const {output} = await bundle.write(outputOption)
     // 3 存储下关联文件列表(存一次，所以ssr的时候处理)
     if(!isSsr){

@@ -65,11 +65,14 @@ async function getRenderData(pagePath,...params){
 
   // 5 注入页面相关css&js
   const appMeta = await getAppInjectMeta(appInfo)
-  const layoutMeta = await getComponentInjectMeta(layoutInfo,true)
+  const layoutMeta = await getComponentInjectMeta(layoutInfo)
   if(!layoutMeta){return}
   const pageMeta = await getComponentInjectMeta(pageInfo)
   if(!pageMeta){return}
-  let metas = Object.assign({},appMeta)
+  let metas = deepmerge({script:[{
+        innerHTML: `window['${Config.layoutNameKey}']= '${layoutInfo.id}';window['${Config.pageNameKey}']= '${pageInfo.id}';`,
+        type: 'text/javascript',
+      }]},appMeta)
   metas = deepmerge(metas,dataMeta)
   metas = deepmerge(metas,layoutMeta)
   metas = deepmerge(metas,pageMeta)
@@ -103,17 +106,18 @@ export async function getRenderInfo(pagePath,...params){
     return false
   }
   result.id = pageInfo.id
+  result.layout = pageInfo.layout
   // style
-  if(pageInfo.cssPath){
-    result.style = await readFile(pageInfo.cssPath).then(code=>code.toString("utf-8"))
-  }else if(pageInfo.cssUrl){
+  if(pageInfo.cssUrl){
     result.style = pageInfo.cssUrl
+  }else{
+    result.style = await readFile(pageInfo.cssPath).then(code=>code.toString("utf-8"))
   }
   // js 
-  if(pageInfo.jsPath){
-    result.script= await readFile(pageInfo.jsPath).then(code=>code.toString("utf-8"))
-  }else if(pageInfo.jsUrl){
+  if(pageInfo.jsUrl){
     result.script = pageInfo.jsUrl
+  }else{
+    result.script= await readFile(pageInfo.jsPath).then(code=>code.toString("utf-8"))
   }
   
   // 2 初始化异步数据
@@ -146,8 +150,8 @@ function resolveFilePath(path){
  */
 async function getAppInfo(){
   if(!manifestInfo || !manifestInfo.app){return null}
-  const  jsPath = Config.injectScript===true? join(distRootDir,manifestInfo.app.client):null
-  const  jsUrl = (typeof Config.injectScript == 'string')? join(Config.injectScript,manifestInfo.app.client):null
+  const  jsPath = join(distRootDir,manifestInfo.app.client)
+  const  jsUrl = (typeof Config.injectUrl == 'string')?join(Config.injectUrl,manifestInfo.app.client):null
   const module = await import(join(distRootDir,manifestInfo.app.ssr)).catch(e=>{
     logger.error(`app complier file load error: `,e)
     return null
@@ -174,11 +178,10 @@ async function getPageInfo(pagePath,autoLoad){
     })
     if(!vmPage){return null}
   }
-
-  const  jsPath = Config.injectScript===true? join(distRootDir,pageInfo.clientJs):null
-  const  jsUrl = (typeof Config.injectScript == 'string')? join(Config.injectScript,pageInfo.clientJs)+'?'+pageInfo.jsVer:null
-  const  cssPath = Config.injectStyle===true? join(distRootDir,pageInfo.clientCss):null
-  const  cssUrl = (typeof Config.injectStyle == 'string')? join(Config.injectStyle,pageInfo.clientCss)+'?'+pageInfo.cssVer:null
+  const  jsPath = join(distRootDir,pageInfo.clientJs)
+  const  jsUrl = (typeof Config.injectUrl == 'string')? join(Config.injectUrl,pageInfo.clientJs)+'?'+pageInfo.jsVer:null
+  const  cssPath = join(distRootDir,pageInfo.clientCss)
+  const  cssUrl = (typeof Config.injectUrl == 'string')? join(Config.injectUrl,pageInfo.clientCss)+'?'+pageInfo.cssVer:null
   return {
     module:vmPage,
     id:pageInfo.id,
@@ -212,10 +215,10 @@ async function getLayoutInfo(layoutName,autoLoad){
       return null
     }
   }
-  const  jsPath = Config.injectScript===true? join(distRootDir,layoutInfo.clientJs):null
-  const  jsUrl = (typeof Config.injectScript == 'string')? join(Config.injectScript,layoutInfo.clientJs)+'?'+layoutInfo.jsVer:null
-  const  cssPath = Config.injectStyle===true? join(distRootDir,layoutInfo.clientCss):null
-  const  cssUrl = (typeof Config.injectStyle == 'string')? join(Config.injectStyle,layoutInfo.clientCss)+'?'+layoutInfo.cssVer:null
+  const  jsPath =join(distRootDir,layoutInfo.clientJs)
+  const  jsUrl = (typeof Config.injectUrl == 'string')? join(Config.injectUrl,layoutInfo.clientJs)+'?'+layoutInfo.jsVer:null
+  const  cssPath = join(distRootDir,layoutInfo.clientCss)
+  const  cssUrl = (typeof Config.injectUrl == 'string')? join(Config.injectUrl,layoutInfo.clientCss)+'?'+layoutInfo.cssVer:null
   return {
     module,
     type:'layout',
@@ -223,35 +226,27 @@ async function getLayoutInfo(layoutName,autoLoad){
     jsPath,
     jsUrl,
     cssPath,
-    cssUrl,
-  //   js:layoutInfo.clientJs,
-  //   jsVer:layoutInfo.jsVer,
-  //   css:layoutInfo.clientCss,
-  //   cssVer:layoutInfo.cssVer,
+    cssUrl
   }
 }
 // 根据页面信息获取对应的页面及布局的css&js 及state数据 js 组成的metaInfo信息
-async function getComponentInjectMeta(componentInfo,isLayout){
+async function getComponentInjectMeta(componentInfo){
   // 设定layout和page对象
-  const nameKey = isLayout?Config.layoutNameKey:Config.pageNameKey
-  const assetsMeta = {script:[{
-                      innerHTML: `window.${nameKey}= '${componentInfo.id}'`,
-                      type: 'text/javascript',
-                    }],link:[],style:[]}
+  const assetsMeta = {script:[],link:[],style:[]}
   try{
     // style
-    if(componentInfo.cssPath){
+    if(componentInfo.cssUrl){
+      assetsMeta.link.push({ rel: 'stylesheet', href:componentInfo.cssUrl })
+    }else{
       const cssStyle = await readFile(componentInfo.cssPath).then(code=>code.toString("utf-8"))
       assetsMeta.style.push({ cssText: cssStyle, type: 'text/css' })
-    }else if(componentInfo.cssUrl){
-      assetsMeta.link.push({ rel: 'stylesheet', href:componentInfo.cssUrl })
     }
     // js 
-    if(componentInfo.jsPath){
+    if(componentInfo.jsUrl){
+      assetsMeta.script.push({src:componentInfo.jsUrl,body: false})
+    }else{
       const jsCode = await readFile(componentInfo.jsPath).then(code=>code.toString("utf-8"))
       assetsMeta.script.push({innerHTML: jsCode,type: 'text/javascript',body: false})
-    }else if(componentInfo.jsUrl){
-      assetsMeta.script.push({src:componentInfo.jsUrl,body: false})
     }
     return assetsMeta
   }catch(e){
@@ -266,11 +261,11 @@ async function getAppInjectMeta(appInfo){
       script:[],
     }
     // js 
-    if(appInfo.jsPath){
+    if(appInfo.jsUrl){
+      metas.script.push({src:appInfo.jsUrl,body: false})
+    }else{
       const jsCode = await readFile(appInfo.jsPath).then(code=>code.toString("utf-8"))
       metas.script.push({innerHTML: jsCode,type: 'text/javascript',body: false})
-    }else if(appInfo.jsUrl){
-      metas.script.push({src:appInfo.jsUrl,body: false})
     }
     return metas
   }catch(e){
