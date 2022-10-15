@@ -19,7 +19,6 @@ const Config = <%=JSON.stringify(options)%>
 // const outputGlobals = Object.assign({"vue":"Vue"},Config.rollupGlobals)
 const outputExternal = Config.rollupExternal||[]
 const outputGlobals = Config.rollupGlobals||{}
-
 const plugins = [
   resolve({
     preferBuiltins: true,
@@ -38,7 +37,10 @@ const plugins = [
   Components({
     // 配置文件生成位置
     // dts: 'components.d.ts',
+    // dirs: [relative(Config.rootPackage,Config.source_component)],
     dirs: [Config.source_component],
+    deep: true,
+    transformer:'vue2',
     // ui库解析器
     resolvers:[
       // (componentName) => {
