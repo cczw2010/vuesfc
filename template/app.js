@@ -121,7 +121,7 @@ export function setLayout(componetName,vm=null,asyncData=null){
     // script
     if(script){
       const domScript = document.createElement("script")
-      <%if(options.injectUrl===true){%>
+      <%if(options.injectUrl){%>
         domScript.src = script
         domScript.onload = function(){
           <%=options.appName%>.__sendEvent(EventAsyncPageReady,id)
