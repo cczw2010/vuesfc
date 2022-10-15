@@ -40,7 +40,7 @@ export default {
   source_page:"pages",
   // layout源码目录
   source_layout: "layouts",
-  // 自定义component源码目录
+  // 自定义component源码目录,可以是数组传入多个
   source_component: "components",
   // vue-meta设置
   vuemeta:{
@@ -89,8 +89,9 @@ export default {
   * @export
   * @param {function} onBuildComplier 编译完成之后的回调
   * @param {boolean} [isDev=false] 是否开发模式
+  * @param {array} [componentDirs=null] 可以动态的增加固定组件的目录，但是不会进行监控
   */
-  compiler(onFinished,true)
+  compiler(onFinished,true,componentDirs)
   ```
 
  编译最终文件的输出根目录`rootDist`可以用做静态服务提供，及项目编译后的资源manifest文件`versPath`

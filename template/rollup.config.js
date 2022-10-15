@@ -39,7 +39,7 @@ const plugins = [
     // 配置文件生成位置
     // dts: 'components.d.ts',
     // dirs: [relative(Config.rootPackage,Config.source_component)],
-    dirs: [Config.source_component],
+    dirs: Config.source_components,
     deep: true,
     transformer:'vue2',
     // ui库解析器

@@ -12,10 +12,11 @@ import {renderer,getRenderInfo} from "./src/render.js"
  * @export
  * @param {function} onFinished 编译完成之后的回调
  * @param {boolean} [isDev=false] 是否开发模式
+ * @param {array} extCompontentDirs  可以动态传入一个vue组件绝对目录数组，来扩展自动导入目录，但不会监控该目录，一般用于库固定组件
  */
-async function compiler(onFinished,isDev=false){
+async function compiler(onFinished,isDev=false,extCompontentDirs=null){
   // 1 初始化并生成本地配置文件
-  const config = await initConfig(isDev)
+  const config = await initConfig(extCompontentDirs,isDev)
   if(!config){return}
   // 2 预编译第三方模块
   await moduleCompiler(config.buildModules,config.dst_root,config.moduleLoaderSSRPath,config.moduleLoaderClientPath)
@@ -35,9 +36,10 @@ async function compiler(onFinished,isDev=false){
 
 /**
  * 初始化生成配置文件，供rollup.config.mjs直接使用
+ * @param {array} extCompontentDirs  可以动态传入一个vue组件绝对目录数组，来扩展自动导入目录，但不会监控该目录，一般用于库固定组件
  * @returns object
  */
-async function initConfig(isDev){
+async function initConfig(extCompontentDirs,isDev){
   try{
     // 读取本地配置文件并合并
     const localConfig = await import(getAbsolutePath('vuesfc.config.js')).then(m=>{
@@ -56,7 +58,9 @@ async function initConfig(isDev){
     if(!localConfig){
       return
     }
-    const config = deepmerge(defConfig,localConfig)
+    
+
+    let config = deepmerge(defConfig,localConfig)
     config.isDev = isDev
     // 将路径部分设成绝对路径
     config.source_page = getAbsolutePath(config.source_page)
@@ -73,6 +77,8 @@ async function initConfig(isDev){
     // 保存config.js
     await saveRuntimeConfig(config)
     // 生成rollup.config.js文件
+    extCompontentDirs = extCompontentDirs||[]
+    config.source_components = extCompontentDirs.concat(config.source_component)
     const rollupDst = await compilerTemplate(getAbsolutePath("./template/rollup.config.js",true),config)
     await write(runtimeRollupConfigPath,rollupDst)
     
