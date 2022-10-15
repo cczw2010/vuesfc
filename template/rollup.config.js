@@ -8,7 +8,8 @@ import {babel} from "@rollup/plugin-babel"   //es6 to es5
 import replace from "@rollup/plugin-replace"
 import progress from 'rollup-plugin-progress'
 import autoprefixer from 'autoprefixer';
-import Components from 'vue-components-self/rollup'
+import Components from 'unplugin-vue-components/rollup'
+// import Components from 'vue-components-self/rollup'
 // import {AntDesignVueResolver} from "unplugin-vue-components/resolvers"
 import vue from 'rollup-plugin-vue'
 import postcss from "rollup-plugin-postcss"
