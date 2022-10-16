@@ -6,8 +6,7 @@
   "type": "module",
   "dependencies": {
     "vant": "^2.12.50",
-    "vue": "^2.7.10",
-    "vuesfc": "link:../..",
+    "vsfc": "link:../..",
     "write": "^2.0.0"
   },
   "scripts": {

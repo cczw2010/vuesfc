@@ -6,7 +6,7 @@
   "type": "module",
   "dependencies": {
     "element-ui": "^2.15.10",
-    "vuesfc": "link:../..",
+    "vsfc": "link:../..",
     "write": "^2.0.0"
   },
   "scripts": {

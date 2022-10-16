@@ -1,4 +1,4 @@
-import  {renderer} from "vuesfc";
+import  {renderer} from "vsfc";
 import write from "write"
 const html = await renderer("home.vue",{title:'this is vant demo'})
 

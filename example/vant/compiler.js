@@ -1,4 +1,4 @@
-import {compiler} from "vuesfc"
+import {compiler} from "vsfc"
 compiler((manifest)=>{
           console.log(manifest)
         })

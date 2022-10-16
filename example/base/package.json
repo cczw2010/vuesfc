@@ -5,7 +5,7 @@
   "main": "builder.js",
   "type": "module",
   "dependencies": {
-    "vuesfc": "link:../..",
+    "vsfc": "link:../..",
     "write": "^2.0.0"
   },
   "scripts": {

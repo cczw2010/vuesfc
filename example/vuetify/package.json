@@ -5,8 +5,7 @@
   "main": "builder.js",
   "type": "module",
   "dependencies": {
-    "vue": "^2.6.14",
-    "vuesfc": "link:../..",
+    "vsfc": "link:../..",
     "vuetify": "2.6.10",
     "write": "^2.0.0"
   },

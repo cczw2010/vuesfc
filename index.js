@@ -40,9 +40,9 @@ async function compiler(onFinished,isDev=false){
 async function initConfig(isDev){
   try{
     // 读取本地配置文件并合并
-    const localConfig = await import(getAbsolutePath('vuesfc.config.js')).then(m=>{
+    const localConfig = await import(getAbsolutePath('vsfc.config.js')).then(m=>{
       if(!m.default){
-        logger.error('[vuesfc.config.js] must exoport with default ')
+        logger.error('[vsfc.config.js] must exoport with default ')
         return false
       }
       return m.default

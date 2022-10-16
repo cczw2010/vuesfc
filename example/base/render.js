@@ -1,4 +1,4 @@
-import  {renderer,getRenderInfo} from "vuesfc";
+import  {renderer,getRenderInfo} from "vsfc";
 import write from "write"
 const info = await getRenderInfo("demo.vue",{title:'aaa'})
 console.log("================getRenderInfo:",info)

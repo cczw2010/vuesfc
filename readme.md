@@ -6,13 +6,15 @@ vue2 sfc 文件的编译工具。 基于rollup。
 
   ```
   npm i vsfc -s
+  #or
+  pnpm i vsfc
 
   ```
 
 ### 配置
 
-#### `vuesfc.config.js`
-项目根目录下可以创建`vuesfc.config.js`文件来自定义配置，默认配置请查看库根目录下的`vuesfc.config.js`文件。 默认如下：
+#### `vsfc.config.js`
+项目根目录下可以创建`vsfc.config.js`文件来自定义配置，默认配置请查看库根目录下的`vsfc.config.js`文件。 默认如下：
 
 ```
 export default {
@@ -83,7 +85,7 @@ export default {
  编译所有page，自动整合相关组件，生成客户端和服务端代码，以供渲染使用。`page`,`layout`,`component` 生成的服务器端渲染js中会自动包含css的注入， 客户端js中不包含css. 第三方模块可以自定义meta信息注入。 
   
   ```
-  import {compiler} from "vuesfc"
+  import {compiler} from "vsfc"
   /**
   *编译vue项目，开发模式下会实时监控变动
   * @export
@@ -96,19 +98,19 @@ export default {
  编译最终文件的输出根目录`rootDist`可以用做静态服务提供，及项目编译后的资源manifest文件`versPath`
 
  ```
-  import {rootDist,versPath} from "vuesfc"
+  import {rootDist,versPath} from "vsfc"
 
  ```
 
  另外提供了`setVueComponentDirs`方法可以动态的预设vue组件的自动导入目录，注意只有在`compiler`调用之前有效
 
-  import {setVueComponentDirs} from "vuesfc"
+  import {setVueComponentDirs} from "vsfc"
 
 
 #### ::renderer 渲染页面
 
   ```
-  import  {renderer} from "vuesfc";
+  import  {renderer} from "vsfc";
 
   /**
   * 渲染页面,须在编译完成后执行
@@ -124,7 +126,7 @@ export default {
 只返回页面对应的数据及页面对应的客户端js&css数据，可从配合前端通过`App.setAsyncPage`动态渲染页面
 
 ```
-  import  {getRenderInfo} from "vuesfc";
+  import  {getRenderInfo} from "vsfc";
 
   /**
   * 可单独用于前端动态获取页面对应的page组件相关style,script信息和asyncData处理数据（如果有的话）。

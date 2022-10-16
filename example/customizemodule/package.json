@@ -5,9 +5,9 @@
   "main": "builder.js",
   "type": "module",
   "dependencies": {
+    "vsfc": "link:../..",
     "vue-js-toggle-button": "^1.3.3",
     "vue-notification": "^1.3.20",
-    "vuesfc": "link:../..",
     "write": "^2.0.0"
   },
   "scripts": {
