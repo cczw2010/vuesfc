@@ -89,9 +89,8 @@ export default {
   * @export
   * @param {function} onBuildComplier 编译完成之后的回调
   * @param {boolean} [isDev=false] 是否开发模式
-  * @param {array} [componentDirs=null] 可以动态的增加固定组件的目录，但是不会进行监控
   */
-  compiler(onFinished,true,componentDirs)
+  compiler(onFinished,true)
   ```
 
  编译最终文件的输出根目录`rootDist`可以用做静态服务提供，及项目编译后的资源manifest文件`versPath`
@@ -100,6 +99,11 @@ export default {
   import {rootDist,versPath} from "vuesfc"
 
  ```
+
+ 另外提供了`setVueComponentDirs`方法可以动态的预设vue组件的自动导入目录，注意只有在`compiler`调用之前有效
+
+  import {setVueComponentDirs} from "vuesfc"
+
 
 #### ::renderer 渲染页面
 

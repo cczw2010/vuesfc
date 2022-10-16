@@ -12,11 +12,10 @@ import {renderer,getRenderInfo} from "./src/render.js"
  * @export
  * @param {function} onFinished 编译完成之后的回调
  * @param {boolean} [isDev=false] 是否开发模式
- * @param {array} extCompontentDirs  可以动态传入一个vue组件绝对目录数组，来扩展自动导入目录，但不会监控该目录，一般用于库固定组件
  */
-async function compiler(onFinished,isDev=false,extCompontentDirs=null){
+async function compiler(onFinished,isDev=false){
   // 1 初始化并生成本地配置文件
-  const config = await initConfig(extCompontentDirs,isDev)
+  const config = await initConfig(isDev)
   if(!config){return}
   // 2 预编译第三方模块
   await moduleCompiler(config.buildModules,config.dst_root,config.moduleLoaderSSRPath,config.moduleLoaderClientPath)
@@ -36,10 +35,9 @@ async function compiler(onFinished,isDev=false,extCompontentDirs=null){
 
 /**
  * 初始化生成配置文件，供rollup.config.mjs直接使用
- * @param {array} extCompontentDirs  可以动态传入一个vue组件绝对目录数组，来扩展自动导入目录，但不会监控该目录，一般用于库固定组件
  * @returns object
  */
-async function initConfig(extCompontentDirs,isDev){
+async function initConfig(isDev){
   try{
     // 读取本地配置文件并合并
     const localConfig = await import(getAbsolutePath('vuesfc.config.js')).then(m=>{
@@ -58,8 +56,6 @@ async function initConfig(extCompontentDirs,isDev){
     if(!localConfig){
       return
     }
-    
-
     let config = deepmerge(defConfig,localConfig)
     config.isDev = isDev
     // 将路径部分设成绝对路径
@@ -77,11 +73,7 @@ async function initConfig(extCompontentDirs,isDev){
     // 保存config.js
     await saveRuntimeConfig(config)
     // 生成rollup.config.js文件
-    extCompontentDirs = extCompontentDirs||[]
-    config.source_components = extCompontentDirs.concat(config.source_component)
-    const rollupDst = await compilerTemplate(getAbsolutePath("./template/rollup.config.js",true),config)
-    await write(runtimeRollupConfigPath,rollupDst)
-    
+    await compilerRollupConfig(config)
     logger.info("config initialize ok")
     return config
   }catch(e){
@@ -89,6 +81,18 @@ async function initConfig(extCompontentDirs,isDev){
     process.exit(1)
   }
 }
+// 生成sfc的rollup.config.js文件
+async function compilerRollupConfig(config){
+  sfcCommponentsDirs = sfcCommponentsDirs.concat(config.source_component)
+  config.source_components = sfcCommponentsDirs
+  const rollupDst = await compilerTemplate(getAbsolutePath("./template/rollup.config.js",true),config)
+  await write(runtimeRollupConfigPath,rollupDst)
+}
 
+let sfcCommponentsDirs = []
+// 设置打包vue sfc的时候自动加载的组件库的预加载目录数组，需要在compiler之前执行方有效
+function setVueComponentDirs(dirs){
+  sfcCommponentsDirs = [].concat(dirs)
+}
 // export
-export {distRootDir as rootDist ,clientManifestPath as versPath,getRuntimeConfig,compiler,renderer,getRenderInfo}
+export {distRootDir as rootDist ,clientManifestPath as versPath,getRuntimeConfig,setVueComponentDirs,compiler,renderer,getRenderInfo}

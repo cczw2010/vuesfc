@@ -10,4 +10,5 @@ export default {
   },
   // rollup
   rollupExternal:['ant-design-vue'],
+  rollupGlobals:{'ant-design-vue':'antd'},
 }
