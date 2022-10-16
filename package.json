@@ -1,5 +1,5 @@
 {
-  "name": "vuesfc",
+  "name": "vsfc",
   "version": "1.0.0",
   "description": "vue2 sfc file complier and render by rollup",
   "main": "index.js",

@@ -5,7 +5,7 @@ vue2 sfc 文件的编译工具。 基于rollup。
 ### 安装
 
   ```
-  npm i vuesfc -s
+  npm i vsfc -s
 
   ```
 
