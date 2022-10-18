@@ -1,7 +1,7 @@
 {
   "name": "test",
   "version": "1.0.0",
-  "description": "vuesfcbuilder demo for third ui library with buildmodule ",
+  "description": "vsfc demo for third ui library with buildmodule ",
   "main": "builder.js",
   "type": "module",
   "dependencies": {

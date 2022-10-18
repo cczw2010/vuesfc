@@ -63,7 +63,7 @@ function getOutputOption(config,isSsr){
     // entryFileNames:'[name]-[hash]-[format].js',
     name:config.appName,
     sourcemap:false,
-    banner: isSsr?'':'/* base js for app , by vuesfcbuilder*/'
+    banner: isSsr?'':'/* base js for app , by vsfc*/'
   }
 }
 /**

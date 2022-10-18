@@ -26,7 +26,7 @@
     layout:'default1',
     data(){
       return {
-        title:"vuesfcbuilder demo: base use>>>demo",
+        title:"vsfc demo: base use>>>demo",
       }
     },
     methods:{
