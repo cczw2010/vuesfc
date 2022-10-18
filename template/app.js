@@ -116,11 +116,13 @@ export function setLayout(componetName,vm=null,asyncData=null){
         domStyle = document.createElement("style")
         domStyle.innerHTML = style
       <%}%>
+      domStyle.rel="stylesheet"
       document.head.appendChild(domStyle)
     }
     // script
     if(script){
       const domScript = document.createElement("script")
+      domScript.type="text/javascript"
       <%if(options.injectUrl){%>
         domScript.src = script
         domScript.onload = function(){
