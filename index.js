@@ -2,7 +2,8 @@ import {join} from "path"
 import deepmerge from "deepmerge"
 import write from "write"
 import { existsSync} from "fs"
-import { getAbsolutePath,logger,distRootDir,clientManifestPath,rootProject,rootPackage,saveRuntimeConfig,runtimeRollupConfigPath,compilerTemplate,getRuntimeConfig} from "./src/utils.js"
+import {copyFile} from "fs/promises"
+import { getAbsolutePath,logger,distRootDir,clientManifestPath,saveRuntimeConfig,rollupServerConfigPath,rollupClientConfigPath,compilerTemplate,getRuntimeConfig} from "./src/utils.js"
 import {compiler as moduleCompiler} from "./src/module.js"
 import appCompiler from "./src/buildapp.js"
 import sfcCompiler from "./src/buildsfc.js"
@@ -65,6 +66,7 @@ async function initConfig(isDev){
     config.source_page = getAbsolutePath(config.source_page)
     config.source_layout = getAbsolutePath(config.source_layout)
     config.source_component = getAbsolutePath(config.source_component)
+    config.source_components = sfcCommponentsDirs.concat(config.source_component)
     // 编译相关目录，到主项目目录下，引入依赖会出问题， 暂时放到包的目录下,但是多个项目依赖会有问题，待处理
     config.dst_root = distRootDir
     config.moduleLoaderSSRPath = join(config.dst_root,"moduleloader.server.js")
@@ -76,20 +78,16 @@ async function initConfig(isDev){
     // 保存config.js
     await saveRuntimeConfig(config)
     // 生成rollup.config.js文件
-    await compilerRollupConfig(config)
+    // const rollupDst = await compilerTemplate(getAbsolutePath("./template/rollup.config.js",true),config)
+    // await write(runtimeRollupConfigPath,rollupDst)
+    await copyFile(getAbsolutePath("./template/rollup.config.server.js",true),rollupServerConfigPath)
+    await copyFile(getAbsolutePath("./template/rollup.config.client.js",true),rollupClientConfigPath)
     logger.info("config initialize ok")
     return config
   }catch(e){
     logger.error(e)
     process.exit(1)
   }
-}
-// 生成sfc的rollup.config.js文件
-async function compilerRollupConfig(config){
-  sfcCommponentsDirs = sfcCommponentsDirs.concat(config.source_component)
-  config.source_components = sfcCommponentsDirs
-  const rollupDst = await compilerTemplate(getAbsolutePath("./template/rollup.config.js",true),config)
-  await write(runtimeRollupConfigPath,rollupDst)
 }
 
 let sfcCommponentsDirs = []

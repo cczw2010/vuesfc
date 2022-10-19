@@ -1,0 +1,10 @@
+{
+  "type": "module",
+	"dependencies": {
+		"magic-string": "^0.26.7",
+		"@rollup/pluginutils": "^5.0.1",
+		"estree-walker": "^3.0.1",
+		"acorn": "^8.8.0",
+		"acorn-walk": "^8.2.0"
+	}
+}

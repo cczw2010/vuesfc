@@ -30,6 +30,8 @@ export const runtimeConfigPath = join(distRootDir,'config.runtime.js')
 
 // 项目对应的rollup配置文件地址,之所以单独生成，是因为【unplugin-vue-component】需要loadConfigFile
 export const runtimeRollupConfigPath = join(distRootDir,'rollup.config.js')
+export const rollupServerConfigPath = join(distRootDir,'rollup.config.server.js')
+export const rollupClientConfigPath = join(distRootDir,'rollup.config.client.js')
 
 export const clientManifestPath = join(distRootDir,'manifest.json')
 /**

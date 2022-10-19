@@ -14,8 +14,7 @@ import Components from 'unplugin-vue-components/rollup'
 import vue from 'rollup-plugin-vue'
 import postcss from "rollup-plugin-postcss"
 import { terser } from "rollup-plugin-terser" 
-
-const Config = <%=JSON.stringify(options)%>
+import Config from "./config.runtime.js"
 // const outputExternal = ["vue"].concat(Config.rollupExternal||[])
 // const outputGlobals = Object.assign({"vue":"Vue"},Config.rollupGlobals)
 const outputExternal = Config.rollupExternal||[]
