@@ -12,9 +12,13 @@ import Components from 'unplugin-vue-components/rollup'
 import vue from 'rollup-plugin-vue'
 import postcss from "rollup-plugin-postcss"
 import { terser } from "rollup-plugin-terser" 
+import * as acorn from "acorn"
+import * as eswalk from "estree-walker"
+import MagicString from 'magic-string';
 import Config from "./config.runtime.js"
 const outputExternal = ["vue"].concat(Config.rollupExternal||[])
 const outputGlobals = Object.assign({"vue":"Vue"},Config.rollupGlobals)
+
 const plugins = [
   resolve({
     preferBuiltins: true,
@@ -29,7 +33,55 @@ const plugins = [
   }),
   progress({
     clearLine: true // default: true
-  }),
+  }),{
+    name: 'vueclean',
+    // resolveId ( source,importer,options ) {
+    //   if(!options.isEntry && source.endsWith('rollup-plugin-vue=script.js')){
+    //     return source
+    //   }
+    //   return null;
+    // },
+    // load(id){
+    //   return null
+    // },
+    transform ( code,id ) {
+      if(id.endsWith('rollup-plugin-vue=script.js')){
+        const s = new MagicString(code)
+        const ast = acorn.parse(code, {ecmaVersion: 2020,sourceType:'module'})
+        eswalk.walk(ast, {
+          enter(node, parent, prop, index) {
+            if(index>=0 && node.type=='Property' && parent.type=='ObjectExpression'){
+              if('asyncData'== node.key.name && node.value.type=='FunctionExpression'){
+                let end = node.end
+                // 如果有下一个属性，他们之间一般是【，】要一起删除
+                if(parent.properties.length-1>index){
+                  end = parent.properties[index+1].start-1
+                }
+                s.remove(node.start, end)
+                this.skip()        // 不往下级走了
+                return
+              }
+              if('head'== node.key.name && ['FunctionExpression',"ObjectExpression"].includes(node.value.type)){
+                let end = node.end
+                // 如果有下一个属性，他们之间一般是【，】要一起删除
+                if(parent.properties.length-1>index){
+                  end = parent.properties[index+1].start-1
+                }
+                s.remove(node.start, end)
+                this.skip()        // 不往下级走了
+                return
+              }
+            }
+          },
+          // leave(node, parent, prop, index) {
+          // }
+        });
+        s.trimLines()
+        return s.toString()
+      }
+      return null
+    }
+  },
   postcss({
     extract: true,
     minimize:!Config.isDev,

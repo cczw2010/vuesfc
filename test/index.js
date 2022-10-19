@@ -1,5 +1,4 @@
 import * as acorn from "acorn"
-import * as acornWalk from "acorn-walk"
 import * as eswalk from "estree-walker"
 import MagicString from 'magic-string';
 const sourceCode = `
@@ -67,23 +66,30 @@ const ast = acorn.parse(sourceCode, {ecmaVersion: 2020}); // https://github.com/
 eswalk.walk(ast, {
   enter(node, parent, prop, index) {
     // some code happens
-    // console.log('>>>>>>>',index,prop,node.type,node)
-    if(node.type!='Property'){
-      this.skip()
-    }
-    if('asyncData'== node.key.name && node.value.type=='FunctionExpression'){
-      console.log("........",index,prop,node.key,node.value,parent)
-    }
-
-    if('head'== node.key.name && ['FunctionExpression',"ObjectExpression"].includes(node.value.type)){
-      console.log("........",index,prop,node.key,node.value,parent)
-      // magicString.overwrite(node.start, node.end, '')
-      magicString.remove(node.start, node.end)
-      console.log('>>>>>',magicString.lastChar())
-      // s.move( node.start, node.end, index )
-      // this.remove()
-      // this.replace(new_node) 
-      // this.skip()
+    console.log('>>>>>>>',index,prop,node.type)
+    if(index>=0 && node.type=='Property' && parent.type=='ObjectExpression'){
+      if('asyncData'== node.key.name && node.value.type=='FunctionExpression'){
+        console.log("........asyncData",node)
+        let end = node.end
+        // 如果有下一个属性，他们之间一般是【，】要一起删除
+        if(parent.properties.length-1>index){
+          end = parent.properties[index+1].start-1
+        }
+        magicString.remove(node.start, end)
+        this.skip()        // 不往下级走了
+        return
+      }
+      if('head'== node.key.name && ['FunctionExpression',"ObjectExpression"].includes(node.value.type)){
+        console.log("........head",node)
+        let end = node.end
+        // 如果有下一个属性，他们之间一般是【，】要一起删除
+        if(parent.properties.length-1>index){
+          end = parent.properties[index+1].start-1
+        }
+        magicString.remove(node.start, end)
+        this.skip()        // 不往下级走了
+        return
+      }
     }
   },
   leave(node, parent, prop, index) {
