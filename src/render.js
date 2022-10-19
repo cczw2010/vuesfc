@@ -112,12 +112,13 @@ export async function getRenderInfo(pagePath,...params){
   result.id = pageInfo.id
   result.layout = pageInfo.layout
   // style ， sfc文件中不包含该代码块，也可能是不存在的
-  const cssCanRead = await access(pageInfo.cssPath,constants.R_OK).then(no=>true).catch(e=>false)
-  if(cssCanRead){
+  // const cssCanRead = await access(pageInfo.cssPath,constants.R_OK).then(no=>true).catch(e=>false)
+  const cssCode = await readFile(pageInfo.cssPath).then(code=>code.toString("utf-8").trim()).catch(e=>'')
+  if(cssCode){
     if(pageInfo.cssUrl){
       result.style = pageInfo.cssUrl
     }else{
-      result.style = await readFile(pageInfo.cssPath).then(code=>code.toString("utf-8")).catch(e=>'')
+      result.style = cssCode
     }
   }
   // js ， sfc文件中不包含该代码块，也可能是不存在的
@@ -244,8 +245,9 @@ async function getComponentInjectMeta(componentInfo){
   const assetsMeta = {script:[],link:[],style:[]}
   try{
     // style,sfc文件中不包含该代码块，也可能是不存在的
-    const cssCanRead = await access(componentInfo.cssPath,constants.R_OK).then(no=>true).catch(e=>false)
-    if(cssCanRead){
+    // const cssCanRead = await access(componentInfo.cssPath,constants.R_OK).then(no=>true).catch(e=>false)
+    const cssStyle = await readFile(componentInfo.cssPath).then(code=>code.toString("utf-8").trim()).catch(e=>'')
+    if(cssStyle){
       if(componentInfo.cssUrl){
         assetsMeta.link.push({ rel: 'stylesheet', href:componentInfo.cssUrl })
       }else{

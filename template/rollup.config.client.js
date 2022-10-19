@@ -32,7 +32,7 @@ const plugins = [
   }),
   postcss({
     extract: true,
-    minimize:true,
+    minimize:!Config.isDev,
     sourceMap:false,
     extensions: ['.css','.scss','.sass','.styl','.less'],
     plugins:[autoprefixer()],
@@ -90,4 +90,4 @@ const outputOption = {
   sourcemap:false,
 }
 
-export {inputOption,outputOption}
+export  {inputOption,outputOption}

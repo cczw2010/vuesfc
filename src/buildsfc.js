@@ -123,7 +123,8 @@ async function complierVueSFC(fpath,config){
 
 async function rollupSfc(pageInfo,ssr){
   const rollupConfigPath = ssr?rollupServerConfigPath:rollupClientConfigPath
-  const {inputOption,outputOption} = await import(rollupConfigPath)
+  // 每次都要重新载入，否则会缓存，postcss 会讲多个入口文件的css混合
+  const {inputOption,outputOption} = await import(rollupConfigPath+'?'+Date.now())
   // 1 编译
   inputOption.input = pageInfo.sourcePath
   const bundle = await rollup(inputOption).catch(e=>{
@@ -139,6 +140,7 @@ async function rollupSfc(pageInfo,ssr){
   outputOption.file = join(pageInfo.dstRoot,ssr?pageInfo.dstServerJs:pageInfo.dstClientJs)
   outputOption.name = pageInfo.id
   const {output} = await bundle.write(outputOption)
+  await bundle.close()
   return output
 }
 

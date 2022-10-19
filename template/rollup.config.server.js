@@ -24,7 +24,7 @@ const plugins = [
   progress({
     clearLine: true // default: true
   }),
-  //postcss的inject 客户端有效，服务端无效，不如关了， 组件内的style也好，import的也好都交由render统一管理注入
+  //服务端postcss 不输出,但是必须有
   postcss({
     extract: false,
     inject:false,
