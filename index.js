@@ -1,12 +1,15 @@
 import {join} from "path"
 import deepmerge from "deepmerge"
 import write from "write"
-import { getAbsolutePath,logger,distRootDir,clientManifestPath,saveRuntimeConfig,runtimeRollupConfigPath,compilerTemplate,getRuntimeConfig} from "./src/utils.js"
+import { existsSync} from "fs"
+import { getAbsolutePath,logger,distRootDir,clientManifestPath,rootProject,rootPackage,saveRuntimeConfig,runtimeRollupConfigPath,compilerTemplate,getRuntimeConfig} from "./src/utils.js"
 import {compiler as moduleCompiler} from "./src/module.js"
 import appCompiler from "./src/buildapp.js"
 import sfcCompiler from "./src/buildsfc.js"
 import defConfig from "./config.js"
 import {renderer,getRenderInfo} from "./src/render.js"
+
+await initBableConfigFile()
 /**
  *编译vue项目，开发模式下会实时监控变动
  * @export
@@ -94,5 +97,16 @@ let sfcCommponentsDirs = []
 function setVueComponentDirs(dirs){
   sfcCommponentsDirs = [].concat(dirs)
 }
+
+// copy bable相关配置文件到项目目录（only run once）
+async function initBableConfigFile(){
+  const dstBableFile = getAbsolutePath('babel.config.json')
+  const dstBrowserslistrcFile = getAbsolutePath('.browserslistrc')
+  if(!existsSync(dstBrowserslistrcFile) && !existsSync(dstBableFile)){
+    await write(dstBableFile,'{\r\n\t"presets":[["@babel/preset-env"]]\r\n}')
+    await write(dstBrowserslistrcFile,'> 0.25%\nnot dead')
+  }
+}
+
 // export
 export {distRootDir as rootDist ,clientManifestPath as versPath,getRuntimeConfig,setVueComponentDirs,compiler,renderer,getRenderInfo}

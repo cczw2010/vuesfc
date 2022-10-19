@@ -73,13 +73,13 @@ export function createApp(){
  * @param {*} asyncData  for ssr 
  */
 export function setLayout(componetName,vm=null,asyncData=null){
-  globalData.layoutName = componetName
-  if(globalThis.window && !vm){
+  <%if(!options.ssr){%>
     window['<%=options.layoutNameKey%>'] = componetName
     vm = window[componetName]
-  }
+  <%}%>
   setCustomMixin(vm,asyncData,true)
   Vue.component(componetName,vm)
+  globalData.layoutName = componetName
 }
 /**
  * 设置当前page组件
@@ -88,13 +88,13 @@ export function setLayout(componetName,vm=null,asyncData=null){
  * @param {*} asyncData  for ssr 
  */
  export function setPage(componetName,vm=null,asyncData=null){
-  globalData.pageName = componetName
-  if(globalThis.window && !vm){
+  <%if(!options.ssr){%>
     window['<%=options.pageNameKey%>'] = componetName
     vm = window[componetName]
-  }
+  <%}%>
   setCustomMixin(vm,asyncData,false)
   Vue.component(componetName,vm)
+  globalData.pageName = componetName
 }
 <%if(!options.ssr){%>
   // 获取实例
@@ -110,11 +110,11 @@ export function setLayout(componetName,vm=null,asyncData=null){
     if(style){
       let domStyle = null
       <%if(options.injectUrl){%>
-        domStyle = document.createElement("link")
-        domStyle.href = style
+      domStyle = document.createElement("link")
+      domStyle.href = style
       <%}else{%>
-        domStyle = document.createElement("style")
-        domStyle.innerHTML = style
+      domStyle = document.createElement("style")
+      domStyle.innerHTML = style
       <%}%>
       domStyle.rel="stylesheet"
       document.head.appendChild(domStyle)
@@ -124,15 +124,15 @@ export function setLayout(componetName,vm=null,asyncData=null){
       const domScript = document.createElement("script")
       domScript.type="text/javascript"
       <%if(options.injectUrl){%>
-        domScript.src = script
-        domScript.onload = function(){
-          <%=options.appName%>.__sendEvent(EventAsyncPageReady,id)
-        }
-        document.head.appendChild(domScript)
-      <%}else{%>
-        domScript.innerHTML = script
-        document.head.appendChild(domScript)
+      domScript.src = script
+      domScript.onload = function(){
         <%=options.appName%>.__sendEvent(EventAsyncPageReady,id)
+      }
+      document.head.appendChild(domScript)
+      <%}else{%>
+      domScript.innerHTML = script
+      document.head.appendChild(domScript)
+      <%=options.appName%>.__sendEvent(EventAsyncPageReady,id)
       <%}%>
     }
   }

@@ -13,16 +13,15 @@ const option = Object.assign({},defOption,options.option)
 const lang = option.locale!=defOption.locale?option.locale:null   //只有非中文需要设置，默认就是中文
 if(lang){ 
 %>
-  import locale from "element-ui/lib/locale/lang/<%=option.locale%>.js"
-  if(globalThis.process && !globalThis.window){
-    Vue.use(ElementUI,{locale})
-  }else{
-    ElementUI.locale(locale)
-  }
+import locale from "element-ui/lib/locale/lang/<%=option.locale%>.js"
 <%}else{%>
-  if(globalThis.process && !globalThis.window){
-    Vue.use(ElementUI)
-  }
+const locale = null
+<%}%>
+
+<%if(options.ssr){%>
+Vue.use(ElementUI,{locale})
+<%}else{%>
+locale&&ElementUI.locale(locale)
 <%}%>
 
 // 模块初始化时调用，注册模块 并更新配置信息，运行于服务启动时
