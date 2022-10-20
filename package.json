@@ -1,6 +1,6 @@
 {
   "name": "vsfc",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "vue2 sfc file complier and render by rollup",
   "main": "index.js",
   "type": "module",
