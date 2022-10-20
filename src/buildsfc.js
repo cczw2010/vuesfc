@@ -2,6 +2,7 @@ import {join} from "path"
 import chokidar  from "chokidar"
 import {rollup} from "rollup"
 import {parse as acornParse} from "acorn"
+import {getSfcInfo} from "./rollup-plugin-sfccheck.js"
 // import loadConfigFile from "rollup/loadConfigFile"
 import {logger,getAbsolutePath,isComponent,rollupServerConfigPath,rollupClientConfigPath,md5,getVueFileInfo,writeManifest, getSfcType } from "./utils.js"
 const pageManifest = {
@@ -100,22 +101,18 @@ async function complierVueSFC(fpath,config){
       clientCss:pageInfo.dstClientCss,
     }
     for (const outputItem of output) {
-        if(outputItem.type == 'asset' ){
+      if(outputItem.type == 'asset' ){
         pageJson.cssVer = md5(outputItem.source)
-        }else if(outputItem.type =="chunk" && outputItem.isEntry){
-        // 解析js代码块,获取其中的layout & asyncData
-        const result = {asyncData:false}
-        if(ftype=='page'){result.layout="default"}
-        for (const key in outputItem.modules) {
-          if(key == fpath+'?rollup-plugin-vue=script.js'){
-            const sourceResult = checkSource(outputItem.modules[key].code,ftype=='page')
-            Object.assign(result,sourceResult)
-          }
+      }else if(outputItem.type =="chunk" && outputItem.isEntry){
+        const result = getSfcInfo()
+        // console.debug(">>>>>>>>>>>>>>><<<<<<<<<<<<<<<",fpath,result)
+        if(ftype!='page'){
+          delete result.layout
         }
         Object.assign(pageJson,result)
         // 因为rollup-plugin-vue 中 如果style块是scope那么在js中的定义会增加scopeid会根据源码生成导致js文件hash变化
         pageJson.jsVer = md5(outputItem.code)
-        }
+      }
     }
     pageManifest[pageInfo.type][pageInfo.relativePath] = pageJson
   }
@@ -140,6 +137,11 @@ async function rollupSfc(pageInfo,ssr){
   outputOption.file = join(pageInfo.dstRoot,ssr?pageInfo.dstServerJs:pageInfo.dstClientJs)
   outputOption.name = pageInfo.id
   const {output} = await bundle.write(outputOption)
+  if(!ssr){
+  // console.log(bundle)
+  // console.log(output[0])
+    
+  }
   await bundle.close()
   return output
 }

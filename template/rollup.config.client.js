@@ -12,9 +12,7 @@ import Components from 'unplugin-vue-components/rollup'
 import vue from 'rollup-plugin-vue'
 import postcss from "rollup-plugin-postcss"
 import { terser } from "rollup-plugin-terser" 
-import * as acorn from "acorn"
-import * as eswalk from "estree-walker"
-import MagicString from 'magic-string';
+import sfcCheck from "../../src/rollup-plugin-sfccheck.js"
 import Config from "./config.runtime.js"
 const outputExternal = ["vue"].concat(Config.rollupExternal||[])
 const outputGlobals = Object.assign({"vue":"Vue"},Config.rollupGlobals)
@@ -27,61 +25,16 @@ const plugins = [
     // modulesOnly:true,
   }) ,
   commonjs(),
+  globals(),
+  nodePolyfills(),
   replace({
     preventAssignment: true,
     'process.env.NODE_ENV': JSON.stringify(Config.isDev?'development':'production'),
   }),
   progress({
     clearLine: true // default: true
-  }),{
-    name: 'vueclean',
-    // resolveId ( source,importer,options ) {
-    //   if(!options.isEntry && source.endsWith('rollup-plugin-vue=script.js')){
-    //     return source
-    //   }
-    //   return null;
-    // },
-    // load(id){
-    //   return null
-    // },
-    transform ( code,id ) {
-      if(id.endsWith('rollup-plugin-vue=script.js')){
-        const s = new MagicString(code)
-        const ast = acorn.parse(code, {ecmaVersion: 2020,sourceType:'module'})
-        eswalk.walk(ast, {
-          enter(node, parent, prop, index) {
-            if(index>=0 && node.type=='Property' && parent.type=='ObjectExpression'){
-              if('asyncData'== node.key.name && node.value.type=='FunctionExpression'){
-                let end = node.end
-                // 如果有下一个属性，他们之间一般是【，】要一起删除
-                if(parent.properties.length-1>index){
-                  end = parent.properties[index+1].start-1
-                }
-                s.remove(node.start, end)
-                this.skip()        // 不往下级走了
-                return
-              }
-              if('head'== node.key.name && ['FunctionExpression',"ObjectExpression"].includes(node.value.type)){
-                let end = node.end
-                // 如果有下一个属性，他们之间一般是【，】要一起删除
-                if(parent.properties.length-1>index){
-                  end = parent.properties[index+1].start-1
-                }
-                s.remove(node.start, end)
-                this.skip()        // 不往下级走了
-                return
-              }
-            }
-          },
-          // leave(node, parent, prop, index) {
-          // }
-        });
-        s.trimLines()
-        return s.toString()
-      }
-      return null
-    }
-  },
+  }),
+  sfcCheck(),
   postcss({
     extract: true,
     minimize:!Config.isDev,
