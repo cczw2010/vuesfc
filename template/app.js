@@ -105,7 +105,9 @@ export function setLayout(componetName,vm=null,asyncData=null){
   export function setAsyncPage(renderInfo){
     const {id,state,style,script} = renderInfo
     // state
-    window['<%=options.stateWindowKey%>'].page[id] = state.page
+    if('page' in state){
+      window['<%=options.stateWindowKey%>'].page[id] = state.page
+    }
     // 如果界面上已经有该页面的assets注入了  不再注入
     if(window[id]){
       setPage(id)
