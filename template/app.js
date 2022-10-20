@@ -106,17 +106,23 @@ export function setLayout(componetName,vm=null,asyncData=null){
     const {id,state,style,script} = renderInfo
     // state
     window['<%=options.stateWindowKey%>'].page[id] = state.page
+    // 如果界面上已经有该页面的assets注入了  不再注入
+    if(window[id]){
+      setPage(id)
+      return 
+    }
     // styles
     if(style){
       let domStyle = null
       <%if(options.injectUrl){%>
       domStyle = document.createElement("link")
       domStyle.href = style
+      domStyle.rel="stylesheet"
       <%}else{%>
       domStyle = document.createElement("style")
       domStyle.innerHTML = style
+      domStyle.type = 'text/css'
       <%}%>
-      domStyle.rel="stylesheet"
       document.head.appendChild(domStyle)
     }
     // script

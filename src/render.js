@@ -252,7 +252,7 @@ async function getComponentInjectMeta(componentInfo){
         assetsMeta.link.push({ rel: 'stylesheet', href:componentInfo.cssUrl })
       }else{
         const cssStyle = await readFile(componentInfo.cssPath).then(code=>code.toString("utf-8")).catch(e=>'')
-        assetsMeta.style.push({ cssText: cssStyle, type: 'text/css' })
+        assetsMeta.style.push({ cssText: cssStyle, type: 'text/css'})
       }
     }
     // js ,sfc文件中不包含该代码块，也可能是不存在的
