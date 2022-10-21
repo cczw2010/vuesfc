@@ -3,10 +3,10 @@ import deepmerge from "deepmerge"
 import write from "write"
 import { existsSync} from "fs"
 import {copyFile} from "fs/promises"
-import { getAbsolutePath,logger,distRootDir,clientManifestPath,saveRuntimeConfig,rollupServerConfigPath,rollupClientConfigPath,compilerTemplate,getRuntimeConfig} from "./src/utils.js"
+import { getAbsolutePath,logger,distRootDir,projectConfigPath,clientManifestPath,saveRuntimeConfig,rollupServerConfigPath,rollupClientConfigPath,getRuntimeConfig} from "./src/utils.js"
 import {compiler as moduleCompiler} from "./src/module.js"
 import appCompiler from "./src/buildapp.js"
-import sfcCompiler from "./src/buildsfc.js"
+import {sfcCompiler,setWatcherResolver} from "./src/buildsfc.js"
 import defConfig from "./config.js"
 import {renderer,getRenderInfo} from "./src/render.js"
 
@@ -34,7 +34,20 @@ async function compiler(onFinished,isDev=false){
     return 
   }
   // 4 执行编译  需要初始化配置信息之后，所以动态加载
-  result = await sfcCompiler(config,onFinished)
+  let watcher = await sfcCompiler(config,()=>{
+    // 开发模式下，项目下的配置文件变更重新编译
+    if(isDev){
+      setWatcherResolver(projectConfigPath,()=>{
+        logger.warn('[vsfc.config.js] file changed, vue compiler restarting... ')
+        watcher.close().then(()=>{
+          watcher = null
+          compiler(onFinished,isDev)
+        })
+      })
+    }
+    onFinished && onFinished()
+  })
+  
 }
 
 /**
@@ -44,7 +57,7 @@ async function compiler(onFinished,isDev=false){
 async function initConfig(isDev){
   try{
     // 读取本地配置文件并合并
-    const localConfig = await import(getAbsolutePath('vsfc.config.js')).then(m=>{
+    const localConfig = await import(projectConfigPath).then(m=>{
       if(!m.default){
         logger.error('[vsfc.config.js] must exoport with default ')
         return false

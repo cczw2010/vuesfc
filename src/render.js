@@ -182,7 +182,11 @@ async function getPageInfo(pagePath,autoLoad){
   // 获取page对应的vm组件 ssr
   let vmPage=null
   if(!autoLoad || pageInfo.asyncData){
-    vmPage = await import(join(manifestInfo.root,pageInfo.serverJs)).then(m=>m.default).catch(e=>{
+    let serverJs = join(manifestInfo.root,pageInfo.serverJs)
+    if(Config.isDev){
+      serverJs = serverJs+'?v='+pageInfo.jsVer
+    }
+    vmPage = await import(serverJs).then(m=>m.default).catch(e=>{
       logger.error(`page:[${pagePath}] complier file load error: `,e)
       return null
     })
@@ -217,7 +221,11 @@ async function getLayoutInfo(layoutName,autoLoad){
   if(!layoutInfo){ return null}
   let module = null
   if(!autoLoad || layoutInfo.asyncData){
-    module = await import(join(manifestInfo.root,layoutInfo.serverJs)).then(m=>m.default).catch(e=>{
+    let serverJs = join(manifestInfo.root,layoutInfo.serverJs)
+    if(Config.isDev){
+      serverJs = serverJs+'?v='+layoutInfo.jsVer
+    }
+    module = await import(serverJs).then(m=>m.default).catch(e=>{
       logger.error(`layout:[${layoutName}] complier file load error: `,e)
       return null
     })

@@ -4,6 +4,8 @@ import {injects} from "<%=options.moduleLoaderPath%>"
 import deepmerge from "deepmerge"
 import {metas} from "<%=options.moduleLoaderPath%>"
 <%}%>
+import ClientOnly from 'vue-client-only'
+Vue.component('ClientOnly',ClientOnly)
 let instance = null
 const globalData ={
   layoutName:'',

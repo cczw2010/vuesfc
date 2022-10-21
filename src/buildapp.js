@@ -12,8 +12,6 @@ import progress from 'rollup-plugin-progress'
 import { terser } from "rollup-plugin-terser" 
 import {readFile} from "fs/promises"
 import {logger,compilerTemplate,distRootDir} from "./utils.js"
-
-const appId = "@app.js"
 function getInputOption(config,isSsr){
   // vue默认runtime，前端打包的vue源码要用完整版本
   const aliasEntriesSsr = { vue:'vue/dist/vue.esm.js'}
@@ -25,6 +23,9 @@ function getInputOption(config,isSsr){
     resolve({
       preferBuiltins: true,
       mainFields: ["module",'jsnext:main', 'main'],
+      // moduleDirectories:['node_modules'],
+      // modulePaths:[rootPackage],
+      // rootDir:rootPackage
     }) ,
     commonjs(),
     replace({
@@ -45,7 +46,7 @@ function getInputOption(config,isSsr){
   ]
   return {
     // 核心参数
-    input:appId,
+    input:config.appSourcePath,
     //不缓存虽然效率略低，但是比较保险，我的代码某个阶段就是不知道哪里被缓存住了，一整天调试不好，后来关了才好。
     cache: false,
     plugins
@@ -115,7 +116,7 @@ function pluginApp(config,ssr=false){
      *          返回false：说明这个包配置了external参数，不进行打包
      */
     resolveId(id,importer,options){
-      if(options.isEntry && id== appId){
+      if(options.isEntry && id== config.appSourcePath){
         return id
       }
       return null
@@ -129,7 +130,7 @@ function pluginApp(config,ssr=false){
      *      返回对象：{code，ast，map，...} 等
      */
     async load ( id ) {
-      if(id==appId){
+      if(id==config.appSourcePath){
         const code = await readFile(config.appSourcePath)
         const moduleLoaderPath = ssr?config.moduleLoaderSSRPath:config.moduleLoaderClientPath
         const options = Object.assign({

@@ -78,6 +78,15 @@ export default {
 
 ```
 
+### ClientOnly
+可以使用`ClientOnly`组件指定只在客户端渲染，这个对于服务端非常中的组件渲染，比如`vue-echart`等，建议只在客户端渲染。 更详细的使用方式查看：[vue-client-only](https://github.com/egoist/vue-client-only)
+
+```
+<client-only>
+  <v-chart class="chart" :option="option" />
+</client-only>
+```
+
 ### SSR API
 
 #### ::compiler 编译项目

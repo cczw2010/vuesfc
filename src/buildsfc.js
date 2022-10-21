@@ -1,7 +1,6 @@
 import {join} from "path"
 import chokidar  from "chokidar"
 import {rollup} from "rollup"
-import {parse as acornParse} from "acorn"
 import {getSfcInfo} from "./rollup-plugin-sfccheck.js"
 // import loadConfigFile from "rollup/loadConfigFile"
 import {logger,getAbsolutePath,isComponent,rollupServerConfigPath,rollupClientConfigPath,md5,getVueFileInfo,writeManifest, getSfcType } from "./utils.js"
@@ -11,7 +10,9 @@ const pageManifest = {
 }
 const pageRelativeFiles = {}
 // ============================================= watcher
-export default async function(config,onFinished){
+let watcher = null
+const fileResolvers = {}  //文件和相应的变更后的回调函数，用于扩展
+export async function sfcCompiler(config,onFinished){
   Object.assign(pageManifest,{
       'root':config.dst_root,
       'app':{
@@ -25,7 +26,7 @@ export default async function(config,onFinished){
     getAbsolutePath(join(config.source_layout,`**/*${config.source_ext}`))
   ]
   // logger.log("watchPath",watchPath)
-  const watcher = chokidar.watch(watchPaths, {
+  watcher = chokidar.watch(watchPaths, {
     ignored: /(^|[\/\\])\../, // ignore dotfiles
     persistent: true,
     interval: 150,
@@ -54,13 +55,23 @@ export default async function(config,onFinished){
         await onFileChange(filepath,config)
       })
       watcher.on('change', async(filepath, stats) => {
+        // 如果有额外的自定义的文件处理方法
+        if(filepath in fileResolvers){
+          return fileResolvers[filepath].call(null)
+        }
         await onFileChange(filepath,config)
       })
     }else{
-      watcher.close()
+      await watcher.close()
     }
     onFinished&&onFinished.call(null,pageManifest)
   })
+  return watcher
+}
+// 单独增加监控文件及文件变更的对应的处理方法 ， isDev下才有效，且要在watcher启动只有有效
+export function setWatcherResolver(filepath,resolver){
+  watcher && watcher.add(filepath)
+  fileResolvers[filepath] = resolver
 }
 // 变更时只处理vuesfc文件
 async function onFileChange(filepath,config){
@@ -137,47 +148,6 @@ async function rollupSfc(pageInfo,ssr){
   outputOption.file = join(pageInfo.dstRoot,ssr?pageInfo.dstServerJs:pageInfo.dstClientJs)
   outputOption.name = pageInfo.id
   const {output} = await bundle.write(outputOption)
-  if(!ssr){
-  // console.log(bundle)
-  // console.log(output[0])
-    
-  }
   await bundle.close()
   return output
-}
-
-
-// 检查 源码中的 asyncData ,layout
-function checkSource(code,checkLayout=true){
-  const result = {asyncData:false}
-  const estree = acornParse(code, {
-    // ecmaVersion: 7,
-    ecmaVersion: 2020,
-    // sourceType:'script', //module
-    // 如果为false，则使用保留字会产生错误。 对于ecmaVersion 3，默认为true，对于较高版本，默认为false
-    // allowReserved:false,
-    // locations:true,
-    })
-  if(estree && estree.type=='Program'){
-    estree.body.map(body=>body.declarations.map(node=>{
-        if(node.type=='VariableDeclarator' && 
-          node.id.type=='Identifier' && 
-          node.id.name=='script' && 
-          node.init.type=='ObjectExpression'){
-            // console.log('>>>>>>>>>>:',node.init.properties)
-          return node.init.properties.map(n=>{
-            if(n.type=='Property' && n.key.type=='Identifier'){
-              // console.log(">>>>>>>>>>>>>>",n)
-              if(checkLayout && n.key.name =='layout' && n.value.type=='Literal'){
-                result.layout = n.value.value
-              }
-              if(n.key.name=='asyncData' && n.value.type == 'FunctionExpression'){
-                result.asyncData = true
-              }
-            }
-          })
-        }
-    }))
-  }
-  return result
 }

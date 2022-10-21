@@ -11,6 +11,8 @@ export const isBrowser = globalThis.window && globalThis.document
 export const logger = consola.withScope('build')
 // 项目根目录
 export const rootProject = process.env.PWD
+// 项目下配置文件
+export const projectConfigPath = join(rootProject,'vsfc.config.js')
 // 本包根目录
 export const rootPackage = new URL("../",import.meta.url).pathname
 // md5
