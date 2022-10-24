@@ -102,15 +102,23 @@ async function complierVueSFC(fpath,config){
   const ftype = getSfcType(fpath,config)
   logger.info(`compiler [${ftype}]: ${fpath}`)
   // logger.info(`compiler page :`,pageInfo)
-  await rollupSfc(pageInfo,true)
+  const outputServer = await rollupSfc(pageInfo,true)
   const output = await rollupSfc(pageInfo,false)
-  if(output){
+  if(outputServer && output){
     const pageJson = {
       id:pageInfo.id,
       serverJs:pageInfo.dstServerJs,
       clientJs:pageInfo.dstClientJs,
       clientCss:pageInfo.dstClientCss,
     }
+    // server jsVer 以服务端为主，因为asyncData和head目前不会影响client端代码，所以服务端变了 客户端也不会变，主要用于开发模式下
+    for (const outputItem of outputServer) {
+      if(outputItem.type =="chunk" && outputItem.isEntry){
+        // rollup-plugin-vue 中 如果style块是scope那么在js中的定义会增加scopeid会根据源码生成导致js文件hash变化
+        pageJson.jsVerSsr = md5(outputItem.code)
+      }
+    }
+    // client cssVer
     for (const outputItem of output) {
       if(outputItem.type == 'asset' ){
         pageJson.cssVer = md5(outputItem.source)
@@ -121,7 +129,7 @@ async function complierVueSFC(fpath,config){
           delete result.layout
         }
         Object.assign(pageJson,result)
-        // 因为rollup-plugin-vue 中 如果style块是scope那么在js中的定义会增加scopeid会根据源码生成导致js文件hash变化
+        // rollup-plugin-vue 中 如果style块是scope那么在js中的定义会增加scopeid会根据源码生成导致js文件hash变化，主要用于开发模式下
         pageJson.jsVer = md5(outputItem.code)
       }
     }

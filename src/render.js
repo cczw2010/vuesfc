@@ -184,7 +184,7 @@ async function getPageInfo(pagePath,autoLoad){
   if(!autoLoad || pageInfo.asyncData){
     let serverJs = join(manifestInfo.root,pageInfo.serverJs)
     if(Config.isDev){
-      serverJs = serverJs+'?v='+pageInfo.jsVer
+      serverJs = serverJs+'?v='+pageInfo.jsVerSsr
     }
     vmPage = await import(serverJs).then(m=>m.default).catch(e=>{
       logger.error(`page:[${pagePath}] complier file load error: `,e)
@@ -223,7 +223,7 @@ async function getLayoutInfo(layoutName,autoLoad){
   if(!autoLoad || layoutInfo.asyncData){
     let serverJs = join(manifestInfo.root,layoutInfo.serverJs)
     if(Config.isDev){
-      serverJs = serverJs+'?v='+layoutInfo.jsVer
+      serverJs = serverJs+'?v='+layoutInfo.jsVerSsr
     }
     module = await import(serverJs).then(m=>m.default).catch(e=>{
       logger.error(`layout:[${layoutName}] complier file load error: `,e)
