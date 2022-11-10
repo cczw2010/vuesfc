@@ -1,5 +1,7 @@
 .vue
 example/*/dist
+example/*/.*
+example/*/babel.config.json
 components.d.ts
 *.log
 npm-debug.log*

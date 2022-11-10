@@ -35,6 +35,7 @@ export default {
   injectUrl:false, 
   // 注入页面的vuejs地址
   vueUrl:'https://cdn.jsdelivr.net/npm/vue@2.7.10',
+  vueUrlDev:'https://cdn.jsdelivr.net/npm/vue@2.7.10/dist/vue.js',
   // ============================================================= complier 编译相关
   // sfc源文件后缀
   source_ext:'.vue',

@@ -52,7 +52,7 @@ function setCustomMixin(component,asyncData=null,isLayout=false){
 export function createApp(){
   let head = {}
   <%if(options.ssr){%>
-    head = {script:[{src:'<%=options.vueUrl%>'}]}
+    head = {script:[{src:'<%=options.isDev?options.vueUrlDev:options.vueUrl%>'}]}
     for (const mkey in metas) {
       head = deepmerge(head,metas[mkey])
     }
