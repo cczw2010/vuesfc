@@ -56,17 +56,22 @@ async function getRenderData(pagePath,...params){
       json: ['innerHTML']
     }}
 
-  // 3 生成服务器端渲染实例
+  let htmlApp = ''
   const {createApp,setLayout,setPage} = appInfo.module
-  setLayout(layoutInfo.id,layoutInfo.module,dataLayout)
-  setPage(pageInfo.id,pageInfo.module,dataPage)
-  const app = createApp()
-  // 4 渲染生成html
-  const html = await renderComponent(app)
-  if(!html){
-    return false
+  // 3 生成服务器端渲染实例
+  if(Config.serverRender){
+    setLayout(layoutInfo.id,layoutInfo.module,dataLayout)
+    setPage(pageInfo.id,pageInfo.module,dataPage)
   }
-
+  const app = createApp()
+  // 4 服务端渲染生成html
+  if(Config.serverRender){
+    htmlApp = await renderComponent(app)
+    if(!htmlApp){
+      return false
+    }
+  }
+  
   // 5 注入页面相关css&js
   const appMeta = await getAppInjectMeta(appInfo)
   const layoutMeta = await getComponentInjectMeta(layoutInfo)
@@ -88,7 +93,7 @@ async function getRenderData(pagePath,...params){
     HEAD_ATTRS:metaInfo.headAttrs.text(),
     BODY_ATTRS:metaInfo.bodyAttrs.text(),
     HEAD:metaInfo.head(true),
-    APP:`<div id="__app">${html}</div>`
+    APP:`<div id="__app">${htmlApp}</div>`
   }
   return appData
 }
@@ -321,7 +326,7 @@ async function asyncData(component,...params){
   return data
 }
 
-// 渲染组件或者vue实例为html代码
+// 渲染组件或者vue实例为html代码,不传入vm则只生成html框架模板用于客户端渲染
 async function renderComponent(vm){
   // ssr引导很多功能都是基于webpack，或者webpack打包生成的配置文件。
   // <!-- built files will be auto injected --> 基本基于vue-loader生成的clientMenifest文件，这里不可自动注入。

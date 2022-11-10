@@ -30,6 +30,8 @@ export default {
   stateWindowKey:'__INITIAL_STATE__',
   // meta数据windowskey
   metaWindowKey:'__INITIAL_META__',
+  // 是否开启服务端渲染,关闭的话，在渲染时只在前端进行vue相关组件渲染
+  serverRender:true,
   // 组件js&css文件注入页面的url前缀,eg:'/static'. 页面上资源实际地址为：${injectPath}/page[layout]-hash-bundle.[js|css]
   // 如果设置为false，代码将直接注入页面
   injectUrl:false, 

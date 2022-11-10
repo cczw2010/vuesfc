@@ -174,9 +174,10 @@ export function setLayout(componetName,vm=null,asyncData=null){
     // init
     instance = createApp()
     //浏览器端挂载vue
-    instance.$mount('[data-server-rendered]')
-    // instance.$mount('#__layout',true)
-    // 发送完成
+    // instance.$mount('[data-server-rendered]')
+    // instance.$mount('#__app')
+    instance.$mount('#__app',!<%=options.serverRender%>)
+    // 发送准备完毕事件
     __sendEvent(EventReady)
   })
 <%}%>
