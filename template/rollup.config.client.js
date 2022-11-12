@@ -1,10 +1,10 @@
-// 如果引入的第三方库太大  不建议使用，合并成一个文件太大了影响速度
-import nodePolyfills from 'rollup-plugin-node-polyfills'
+// import nodePolyfills from 'rollup-plugin-node-polyfills'
+import {join} from "path"
 import globals from "rollup-plugin-node-globals"
 import resolve from '@rollup/plugin-node-resolve'   // // 告诉 Rollup 如何查找外部模块
 import commonjs from '@rollup/plugin-commonjs'     // 将Commonjs语法的包转为ES6可用
 import json from '@rollup/plugin-json'  // 转换json为 es6
-import {babel} from "@rollup/plugin-babel"   //es6 to es5
+import {babel,getBabelOutputPlugin} from "@rollup/plugin-babel"   //es6 to es5
 import replace from "@rollup/plugin-replace"
 import progress from 'rollup-plugin-progress'
 import autoprefixer from 'autoprefixer';
@@ -13,20 +13,21 @@ import vue from 'rollup-plugin-vue'
 import postcss from "rollup-plugin-postcss"
 import { terser } from "rollup-plugin-terser" 
 import sfcCheck from "../../src/rollup-plugin-sfccheck.js"
+import {rootProject} from "../../src/utils.js"
 import Config from "./config.runtime.js"
 const outputExternal = ["vue"].concat(Config.rollupExternal||[])
 const outputGlobals = Object.assign({"vue":"Vue"},Config.rollupGlobals)
-
 const plugins = [
   resolve({
     preferBuiltins: true,
     mainFields: ["module",'jsnext:main', 'main'],
+    // modulePaths:[join(rootPackage,'node_modules')],
     // browser: true,
     // modulesOnly:true,
   }) ,
   commonjs(),
   globals(),
-  nodePolyfills(),
+  // nodePolyfills(),
   replace({
     preventAssignment: true,
     'process.env.NODE_ENV': JSON.stringify(Config.isDev?'development':'production'),
@@ -69,10 +70,11 @@ const plugins = [
     directives: true,   //@babel/parser needed for vue2
   }),
   json(),
-  babel({
-    babelHelpers: 'bundled',
-    exclude: 'node_modules/**', // 只编译我们的源代码,排除node_mouldes下的
-  }),
+  // babel({
+  //   babelHelpers: 'bundled',
+  //   exclude: ['node_modules/**',/core-js/, /@babel\/runtime/], // 只编译我们的源代码,排除node_mouldes下的
+  //   // exclude: ['node_modules/**'], 
+  // }),
   !Config.isDev&&terser()
 ]
 
@@ -93,6 +95,11 @@ const outputOption = {
   name:'default',
   inlineDynamicImports:true,
   sourcemap:false,
+  plugins: [getBabelOutputPlugin({ 
+    presets: ['@babel/preset-env'],
+    configFile: join(rootProject, 'babel.config.json'),
+    allowAllFormats: true,
+  })]
 }
 
 export  {inputOption,outputOption}

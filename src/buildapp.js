@@ -1,17 +1,17 @@
 import {rollup} from "rollup"
 import { join } from "path"
 import alias from '@rollup/plugin-alias'
-import nodePolyfills from 'rollup-plugin-node-polyfills'
+// import nodePolyfills from 'rollup-plugin-node-polyfills'
 import globals from "rollup-plugin-node-globals"
-import resolve from '@rollup/plugin-node-resolve'   // // 告诉 Rollup 如何查找外部模块
+import nodeResolve from '@rollup/plugin-node-resolve'   // // 告诉 Rollup 如何查找外部模块
 import commonjs from '@rollup/plugin-commonjs'     // 将Commonjs语法的包转为ES6可用
 import json from '@rollup/plugin-json'  // 转换json为 es6
-import {babel} from "@rollup/plugin-babel"   //es6 to es5
+import {babel,getBabelOutputPlugin} from "@rollup/plugin-babel"   //es6 to es5
 import replace from "@rollup/plugin-replace"
 import progress from 'rollup-plugin-progress'
 import { terser } from "rollup-plugin-terser" 
 import {readFile} from "fs/promises"
-import {logger,compilerTemplate,distRootDir} from "./utils.js"
+import {logger,compilerTemplate,distRootDir,rootPackage} from "./utils.js"
 function getInputOption(config,isSsr){
   // vue默认runtime，前端打包的vue源码要用完整版本
   const aliasEntriesSsr = { vue:'vue/dist/vue.esm.js'}
@@ -20,11 +20,11 @@ function getInputOption(config,isSsr){
     alias({
       entries: isSsr?aliasEntriesSsr:aliasEntriesClient
     }),
-    resolve({
+    nodeResolve({
       preferBuiltins: true,
       mainFields: ["module",'jsnext:main', 'main'],
       // moduleDirectories:['node_modules'],
-      // modulePaths:[rootPackage],
+      // modulePaths:[join(rootPackage,'node_modules')],
       // rootDir:rootPackage
     }) ,
     commonjs(),
@@ -36,10 +36,10 @@ function getInputOption(config,isSsr){
     json(),
     pluginApp(config,isSsr),
     !isSsr&&globals(),
-    !isSsr&&nodePolyfills(),
+    // !isSsr&&nodePolyfills(),
     !isSsr&&babel({
       babelHelpers: 'bundled',
-      exclude: 'node_modules/**', // 只编译我们的源代码,排除node_mouldes下的
+      exclude: ['node_modules/**'], // 只编译我们的源代码,排除node_mouldes下的
     }),
     // terser(),
     !config.isDev&&terser()
@@ -60,6 +60,13 @@ function getOutputOption(config,isSsr){
     file:outFile,
     format,
     inlineDynamicImports:true,
+    plugins: [
+      !isSsr && getBabelOutputPlugin({
+        presets: ['@babel/preset-env'],
+        // configFile: join(process.cwd(), 'babel.config.json'),
+        allowAllFormats: true,
+      })
+    ],
     // chunkFileNames:'[name]-[hash]-[format].js',
     // entryFileNames:'[name]-[hash]-[format].js',
     name:config.appName,

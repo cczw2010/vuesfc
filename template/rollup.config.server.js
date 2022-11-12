@@ -1,4 +1,4 @@
-// 如果引入的第三方库太大  不建议使用，合并成一个文件太大了影响速度
+import {join} from "path"
 import resolve from '@rollup/plugin-node-resolve'   // // 告诉 Rollup 如何查找外部模块
 import commonjs from '@rollup/plugin-commonjs'     // 将Commonjs语法的包转为ES6可用
 import json from '@rollup/plugin-json'  // 转换json为 es6
@@ -8,12 +8,14 @@ import Components from 'unplugin-vue-components/rollup'
 import vue from 'rollup-plugin-vue'
 import postcss from "rollup-plugin-postcss"
 import { terser } from "rollup-plugin-terser" 
+import {rootPackage} from "../../src/utils.js"
 import Config from "./config.runtime.js"
 const outputExternal = ["vue"].concat(Config.rollupExternal||[])
 const plugins = [
   resolve({
     preferBuiltins: true,
     mainFields: ["module",'jsnext:main', 'main'],
+    modulePaths:[join(rootPackage,'node_modules')],
     // modulesOnly:true,
   }) ,
   commonjs(),
