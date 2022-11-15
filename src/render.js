@@ -191,11 +191,11 @@ async function getPageInfo(pagePath,autoLoad){
   // 获取page对应的vm组件 ssr
   let vmPage=null
   if(!autoLoad || pageInfo.asyncData){
-    let serverJs = join(manifestInfo.root,pageInfo.serverJs)
-    // if(Config.isDev){
-    //   serverJs = serverJs+'?v='+pageInfo.jsVerSsr
-    // }
-    vmPage = await import(pathToFileURL(serverJs)).then(m=>m.default).catch(e=>{
+    let serverJs = pathToFileURL(join(manifestInfo.root,pageInfo.serverJs)).href
+    if(Config.isDev){
+      serverJs = serverJs+'?v='+pageInfo.jsVerSsr
+    }
+    vmPage = await import(serverJs).then(m=>m.default).catch(e=>{
       logger.error(`page:[${pagePath}] complier file load error: `,e)
       return null
     })
@@ -230,11 +230,11 @@ async function getLayoutInfo(layoutName,autoLoad){
   if(!layoutInfo){ return null}
   let module = null
   if(!autoLoad || layoutInfo.asyncData){
-    let serverJs = join(manifestInfo.root,layoutInfo.serverJs)
-    // if(Config.isDev){
-    //   serverJs = serverJs+'?v='+layoutInfo.jsVerSsr
-    // }
-    module = await import(pathToFileURL(serverJs)).then(m=>m.default).catch(e=>{
+    let serverJs = pathToFileURL(join(manifestInfo.root,layoutInfo.serverJs)).href
+    if(Config.isDev){
+      serverJs = serverJs+'?'+layoutInfo.jsVerSsr
+    }
+    module = await import(serverJs).then(m=>m.default).catch(e=>{
       logger.error(`layout:[${layoutName}] complier file load error: `,e)
       return null
     })
@@ -341,7 +341,9 @@ async function renderComponent(vm){
     // template:`<!--vue-ssr-outlet-->`
   }) 
   // 这个上下文用于接收renderToString各种手动注入方法，同时可以用作数据注入，而这里是通过asyncData&mixins自定义实现的，所以不需要注入数据了了
-  const context = {rendered(){ logger.debug('server renderd ok')}}
+  const context = {
+    // rendered(){ logger.debug('server renderd ok')}
+  }
   /**
    * vueServerRender.renderToString(app,context,function(err,html){
    * 在 renderToString 回调函数中，你传入的 context 对象(第二个对象)会暴露以下方法： renderStyles，renderState等
