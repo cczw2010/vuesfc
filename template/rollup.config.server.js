@@ -1,5 +1,5 @@
 import {join} from "path"
-import resolve from '@rollup/plugin-node-resolve'   // // 告诉 Rollup 如何查找外部模块
+import nodeResolve from '@rollup/plugin-node-resolve'   // // 告诉 Rollup 如何查找外部模块
 import commonjs from '@rollup/plugin-commonjs'     // 将Commonjs语法的包转为ES6可用
 import json from '@rollup/plugin-json'  // 转换json为 es6
 import replace from "@rollup/plugin-replace"
@@ -12,7 +12,7 @@ import {rootPackage} from "../../src/utils.js"
 import Config from "./config.runtime.js"
 const outputExternal = ["vue"].concat(Config.rollupExternal||[])
 const plugins = [
-  resolve({
+  nodeResolve({
     preferBuiltins: true,
     mainFields: ["module",'jsnext:main', 'main'],
     modulePaths:[join(rootPackage,'node_modules')],

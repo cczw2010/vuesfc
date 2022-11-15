@@ -4,6 +4,7 @@ import {rollup} from "rollup"
 import {getSfcInfo} from "./rollup-plugin-sfccheck.js"
 // import loadConfigFile from "rollup/loadConfigFile"
 import {logger,getAbsolutePath,isComponent,rollupServerConfigPath,rollupClientConfigPath,md5,getVueFileInfo,writeManifest, getSfcType } from "./utils.js"
+import { pathToFileURL } from "url"
 const pageManifest = {
   'layout':{},
   'page':{}
@@ -138,7 +139,7 @@ async function complierVueSFC(fpath,config){
 }
 
 async function rollupSfc(pageInfo,ssr){
-  const rollupConfigPath = ssr?rollupServerConfigPath:rollupClientConfigPath
+  const rollupConfigPath =  pathToFileURL(ssr?rollupServerConfigPath:rollupClientConfigPath)
   // 每次都要重新载入，否则会缓存，postcss 会讲多个入口文件的css混合
   const {inputOption,outputOption} = await import(rollupConfigPath+'?'+Date.now())
   // 1 编译

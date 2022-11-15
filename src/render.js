@@ -8,6 +8,7 @@ import VueMeta from 'vue-meta'
 import template from "lodash.template"
 import { logger,getRuntimeConfig,getManifest,distRootDir,getAbsolutePath} from "./utils.js"
 import Vue from "vue"
+import { pathToFileURL } from "url"
 let Config = null
 let manifestInfo = null
 /**
@@ -38,6 +39,7 @@ async function getRenderData(pagePath,...params){
     return false
   }
   const layoutInfo = await getLayoutInfo(pageInfo.layout)
+
   if(!layoutInfo){
     return false
   }
@@ -71,7 +73,7 @@ async function getRenderData(pagePath,...params){
       return false
     }
   }
-  
+
   // 5 注入页面相关css&js
   const appMeta = await getAppInjectMeta(appInfo)
   const layoutMeta = await getComponentInjectMeta(layoutInfo)
@@ -157,6 +159,8 @@ function resolveFilePath(path){
   if(extname(path)==''){
     path = path + Config.source_ext
   }
+  // 调用一次join 会自动根据当前系统转换文件sep，主要针对windows
+  path = join(path)
   return path
 }
 /**
@@ -167,7 +171,7 @@ async function getAppInfo(){
   if(!manifestInfo || !manifestInfo.app){return null}
   const  jsPath = join(distRootDir,manifestInfo.app.client)
   const  jsUrl = (typeof Config.injectUrl == 'string')?join(Config.injectUrl,manifestInfo.app.client):null
-  const module = await import(join(distRootDir,manifestInfo.app.ssr)).catch(e=>{
+  const module = await import(pathToFileURL(join(distRootDir,manifestInfo.app.ssr))).catch(e=>{
     logger.error(`app complier file load error: `,e)
     return null
   })
@@ -188,10 +192,10 @@ async function getPageInfo(pagePath,autoLoad){
   let vmPage=null
   if(!autoLoad || pageInfo.asyncData){
     let serverJs = join(manifestInfo.root,pageInfo.serverJs)
-    if(Config.isDev){
-      serverJs = serverJs+'?v='+pageInfo.jsVerSsr
-    }
-    vmPage = await import(serverJs).then(m=>m.default).catch(e=>{
+    // if(Config.isDev){
+    //   serverJs = serverJs+'?v='+pageInfo.jsVerSsr
+    // }
+    vmPage = await import(pathToFileURL(serverJs)).then(m=>m.default).catch(e=>{
       logger.error(`page:[${pagePath}] complier file load error: `,e)
       return null
     })
@@ -227,10 +231,10 @@ async function getLayoutInfo(layoutName,autoLoad){
   let module = null
   if(!autoLoad || layoutInfo.asyncData){
     let serverJs = join(manifestInfo.root,layoutInfo.serverJs)
-    if(Config.isDev){
-      serverJs = serverJs+'?v='+layoutInfo.jsVerSsr
-    }
-    module = await import(serverJs).then(m=>m.default).catch(e=>{
+    // if(Config.isDev){
+    //   serverJs = serverJs+'?v='+layoutInfo.jsVerSsr
+    // }
+    module = await import(pathToFileURL(serverJs)).then(m=>m.default).catch(e=>{
       logger.error(`layout:[${layoutName}] complier file load error: `,e)
       return null
     })

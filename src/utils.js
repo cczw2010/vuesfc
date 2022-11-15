@@ -1,20 +1,22 @@
-import {join,isAbsolute,relative} from "path"
+import {join,isAbsolute,relative, resolve} from "path"
 import write from "write"
+import { fileURLToPath,pathToFileURL } from "url"
 import template from "lodash.template"
 import { readFile} from "fs/promises"
 import consola from "consola"
 import hash from "hash-sum"
+// 项目根目录
+const rootProject = process.cwd()
 
 // 判断 node 和 window
 export const isBrowser = globalThis.window && globalThis.document
 // logger
 export const logger = consola.withScope('build')
-// 项目根目录
-export const rootProject = process.env.PWD
 // 项目下配置文件
-export const projectConfigPath = join(rootProject,'vsfc.config.js')
+// export const projectConfigPath = join(rootProject,'vsfc.config.js')
+export const projectConfigPath = pathToFileURL(resolve('vsfc.config.js')).href
 // 本包根目录
-export const rootPackage = new URL("../",import.meta.url).pathname
+export const rootPackage = fileURLToPath(new URL("../",import.meta.url))
 // md5
 export function md5(data){
   // 以md5的格式创建一个哈希值
@@ -24,14 +26,11 @@ export function md5(data){
   return hash(data)
 }
 
-// 项目对应的唯一编译输出根目录地址
-export const distRootDir = getAbsolutePath(`.vue/${md5(rootProject)}`,true)
-
+// 项目对应的唯一编译输出根目录地址md5增加前缀是为了防止\<number>被处理为进制数据（windows下路径）
+export const distRootDir = getAbsolutePath(`.vue/v${md5(rootProject)}`,true)
 // 项目对应的最终配置文件地址
 export const runtimeConfigPath = join(distRootDir,'config.runtime.js')
 
-// 项目对应的rollup配置文件地址,之所以单独生成，是因为【unplugin-vue-component】需要loadConfigFile
-export const runtimeRollupConfigPath = join(distRootDir,'rollup.config.js')
 export const rollupServerConfigPath = join(distRootDir,'rollup.config.server.js')
 export const rollupClientConfigPath = join(distRootDir,'rollup.config.client.js')
 
@@ -46,10 +45,28 @@ export const clientManifestPath = join(distRootDir,'manifest.json')
  */
  export function getAbsolutePath(path,packagePath){
   if(!isAbsolute(path)){
-    const root = packagePath?rootPackage:rootProject
-    return join(root,path)
+    if(packagePath){
+      return resolve(rootPackage,path)
+    }
+    return resolve(path)
   }
   return path
+}
+// 获取项目的自定义初始配置
+export async function getLocalConfig(){
+  return await import(projectConfigPath).then(m=>{
+    if(!m.default){
+      logger.error('[vsfc.config.js] must export with default ')
+      return false
+    }
+    return m.default
+  }).catch(e=>{
+    if(e.code=='ERR_MODULE_NOT_FOUND'){
+      return {}
+    }
+    logger.error(e)
+    return false
+  })
 }
 // 存储最终运行时的配置文件
 export async function saveRuntimeConfig(config){
@@ -59,7 +76,7 @@ export async function saveRuntimeConfig(config){
 }
 // 获取项目生成的最终运行时配置文件
 export async function getRuntimeConfig(){
-  return await import(runtimeConfigPath).then(m=>m.default).catch(e=>{
+  return await import(pathToFileURL(runtimeConfigPath)).then(m=>m.default).catch(e=>{
     logger.error("vue runtime config get error. you must run [compiler] first.\n")
     process.exit(1)
   })

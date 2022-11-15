@@ -1,8 +1,9 @@
 import Vue from 'vue'
-import {injects} from "<%=options.moduleLoaderPath%>"
 <%if(options.ssr){%>
 import deepmerge from "deepmerge"
-import {metas} from "<%=options.moduleLoaderPath%>"
+import {injects,metas} from <%=options.moduleLoaderPath%>
+<%}else{%>
+import {injects} from <%=options.moduleLoaderPath%>
 <%}%>
 import ClientOnly from 'vue-client-only'
 Vue.component('ClientOnly',ClientOnly)

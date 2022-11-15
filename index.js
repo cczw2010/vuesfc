@@ -3,7 +3,7 @@ import deepmerge from "deepmerge"
 import write from "write"
 import { existsSync} from "fs"
 import {copyFile} from "fs/promises"
-import { getAbsolutePath,logger,distRootDir,projectConfigPath,clientManifestPath,saveRuntimeConfig,rollupServerConfigPath,rollupClientConfigPath,getRuntimeConfig} from "./src/utils.js"
+import { getAbsolutePath,logger,distRootDir,projectConfigPath,getLocalConfig,clientManifestPath,saveRuntimeConfig,rollupServerConfigPath,rollupClientConfigPath,getRuntimeConfig} from "./src/utils.js"
 import {compiler as moduleCompiler} from "./src/module.js"
 import appCompiler from "./src/buildapp.js"
 import {sfcCompiler,setWatcherResolver} from "./src/buildsfc.js"
@@ -27,11 +27,11 @@ async function compiler(onFinished,isDev=false){
   // 3 执行编译app.js
   let result = await appCompiler(config,true)
   if(result===false){
-    return 
+    process.exit(1)
   }
   result = await appCompiler(config)
   if(result===false){
-    return 
+    process.exit(1)
   }
   // 4 执行编译  需要初始化配置信息之后，所以动态加载
   let watcher = await sfcCompiler(config,()=>{
@@ -57,19 +57,7 @@ async function compiler(onFinished,isDev=false){
 async function initConfig(isDev){
   try{
     // 读取本地配置文件并合并
-    const localConfig = await import(projectConfigPath).then(m=>{
-      if(!m.default){
-        logger.error('[vsfc.config.js] must exoport with default ')
-        return false
-      }
-      return m.default
-    }).catch(e=>{
-      if(e.code=='ERR_MODULE_NOT_FOUND'){
-        return {}
-      }
-      logger.error(e)
-      return false
-    })
+    const localConfig = await getLocalConfig()
     if(!localConfig){
       return
     }
@@ -82,9 +70,9 @@ async function initConfig(isDev){
     config.source_components = sfcCommponentsDirs.concat(config.source_component)
     // 编译相关目录，到主项目目录下，引入依赖会出问题， 暂时放到包的目录下,但是多个项目依赖会有问题，待处理
     config.dst_root = distRootDir
+    config.appSourcePath = getAbsolutePath("./template/app.js",true)
     config.moduleLoaderSSRPath = join(config.dst_root,"moduleloader.server.js")
     config.moduleLoaderClientPath = join(config.dst_root,"moduleloader.client.js")
-    config.appSourcePath = getAbsolutePath("./template/app.js",true)
     config.appSSRPath = "app.server.js"
     config.appClientPath = "app.bundle.js"
     config.dst_ext = ".js"
@@ -120,4 +108,4 @@ async function initBableConfigFile(){
 }
 
 // export
-export {distRootDir as rootDist ,clientManifestPath as versPath,getRuntimeConfig,setVueComponentDirs,compiler,renderer,getRenderInfo}
+export {distRootDir as rootDist ,clientManifestPath as versPath,getLocalConfig,getRuntimeConfig,setVueComponentDirs,compiler,renderer,getRenderInfo}

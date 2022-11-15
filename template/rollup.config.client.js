@@ -1,10 +1,10 @@
 // import nodePolyfills from 'rollup-plugin-node-polyfills'
-import {join} from "path"
+import {resolve} from "path"
 import globals from "rollup-plugin-node-globals"
-import resolve from '@rollup/plugin-node-resolve'   // // 告诉 Rollup 如何查找外部模块
+import nodeResolve from '@rollup/plugin-node-resolve'   // // 告诉 Rollup 如何查找外部模块
 import commonjs from '@rollup/plugin-commonjs'     // 将Commonjs语法的包转为ES6可用
 import json from '@rollup/plugin-json'  // 转换json为 es6
-import {babel,getBabelOutputPlugin} from "@rollup/plugin-babel"   //es6 to es5
+import {getBabelOutputPlugin} from "@rollup/plugin-babel"   //es6 to es5
 import replace from "@rollup/plugin-replace"
 import progress from 'rollup-plugin-progress'
 import autoprefixer from 'autoprefixer';
@@ -13,12 +13,11 @@ import vue from 'rollup-plugin-vue'
 import postcss from "rollup-plugin-postcss"
 import { terser } from "rollup-plugin-terser" 
 import sfcCheck from "../../src/rollup-plugin-sfccheck.js"
-import {rootProject} from "../../src/utils.js"
 import Config from "./config.runtime.js"
 const outputExternal = ["vue"].concat(Config.rollupExternal||[])
 const outputGlobals = Object.assign({"vue":"Vue"},Config.rollupGlobals)
 const plugins = [
-  resolve({
+  nodeResolve({
     preferBuiltins: true,
     mainFields: ["module",'jsnext:main', 'main'],
     // modulePaths:[join(rootPackage,'node_modules')],
@@ -97,7 +96,7 @@ const outputOption = {
   sourcemap:false,
   plugins: [getBabelOutputPlugin({ 
     presets: ['@babel/preset-env'],
-    configFile: join(rootProject, 'babel.config.json'),
+    configFile: resolve('babel.config.json'),
     allowAllFormats: true,
   })]
 }

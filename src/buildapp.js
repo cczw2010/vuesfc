@@ -1,5 +1,5 @@
 import {rollup} from "rollup"
-import { join } from "path"
+import { join} from "path"
 import alias from '@rollup/plugin-alias'
 // import nodePolyfills from 'rollup-plugin-node-polyfills'
 import globals from "rollup-plugin-node-globals"
@@ -11,7 +11,7 @@ import replace from "@rollup/plugin-replace"
 import progress from 'rollup-plugin-progress'
 import { terser } from "rollup-plugin-terser" 
 import {readFile} from "fs/promises"
-import {logger,compilerTemplate,distRootDir,rootPackage} from "./utils.js"
+import {logger,compilerTemplate,distRootDir} from "./utils.js"
 function getInputOption(config,isSsr){
   // vue默认runtime，前端打包的vue源码要用完整版本
   const aliasEntriesSsr = { vue:'vue/dist/vue.esm.js'}
@@ -100,7 +100,7 @@ export default async function compiler(config,ssr){
   if(!bundle){
     return false
   }
-  await bundle.write(outputOptions)
+  return await bundle.write(outputOptions)
 }
 /**
  * app.js 构建方法
@@ -139,7 +139,7 @@ function pluginApp(config,ssr=false){
     async load ( id ) {
       if(id==config.appSourcePath){
         const code = await readFile(config.appSourcePath)
-        const moduleLoaderPath = ssr?config.moduleLoaderSSRPath:config.moduleLoaderClientPath
+        const moduleLoaderPath =  JSON.stringify(ssr?config.moduleLoaderSSRPath:config.moduleLoaderClientPath)
         const options = Object.assign({
                         moduleLoaderPath,
                         ssr,

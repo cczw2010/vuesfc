@@ -1,9 +1,8 @@
 // 预编译第三方模块
-import {join} from "path"
+import {resolve} from "path"
+import { pathToFileURL } from "url"
 import write from "write"
 import { getAbsolutePath,compilerTemplate,logger } from "./utils.js"
-const modulesRoot = getAbsolutePath("buildmodules",true)
-const projectRoot = process.env.PWD
 // 默认加载的内置module
 const defModule = {}
 /**
@@ -27,12 +26,12 @@ export async function compiler(options,dstRoot,moduleLoaderSSRPath,moduleLoaderC
       let moduleSourcePath = null
       // 自定义编译组件
       if(moduleName.startsWith("~")){
-        moduleSourcePath =  moduleName.replace(/^~/ig,projectRoot)
+        moduleSourcePath =  moduleName.replace(/^~/ig,process.cwd())
       }else{
-        moduleSourcePath = join(modulesRoot,moduleName)
+        moduleSourcePath = resolve(modulesRoot,moduleName)
       }
-      const moduleServerDstPath = join(dstRoot,`module_${count}.server.js`)
-      const moduleClientDstPath = join(dstRoot,`module_${count}.client.js`)
+      const moduleServerDstPath = resolve(dstRoot,`module_${count}.server.js`)
+      const moduleClientDstPath = resolve(dstRoot,`module_${count}.client.js`)
       count++
       logger.info(`compiler build module: [${moduleName}]`)
       const moduleConfig = options[moduleName]||{}
@@ -45,8 +44,8 @@ export async function compiler(options,dstRoot,moduleLoaderSSRPath,moduleLoaderC
       await write(moduleServerDstPath,codessr)
       await write(moduleClientDstPath,codeclient)
 
-      modulesSSR[moduleName] = moduleServerDstPath
-      modulesClient[moduleName] = moduleClientDstPath
+      modulesSSR[moduleName] = JSON.stringify(moduleServerDstPath)
+      modulesClient[moduleName] = JSON.stringify(moduleClientDstPath)
     }catch(e){
       logger.error(e)
       return null
