@@ -24,7 +24,7 @@ function getInputOption(config,isSsr){
       preferBuiltins: true,
       mainFields: ["module",'jsnext:main', 'main'],
       // moduleDirectories:['node_modules'],
-      // modulePaths:[join(rootPackage,'node_modules')],
+      modulePaths:[join(process.env.vsfcPackageRoot,'node_modules')],
       // rootDir:rootPackage
     }) ,
     commonjs(),

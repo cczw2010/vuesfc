@@ -3,7 +3,7 @@ import deepmerge from "deepmerge"
 import write from "write"
 import { existsSync} from "fs"
 import {copyFile} from "fs/promises"
-import { getAbsolutePath,logger,distRootDir,projectConfigPath,getLocalConfig,clientManifestPath,saveRuntimeConfig,rollupServerConfigPath,rollupClientConfigPath,getRuntimeConfig} from "./src/utils.js"
+import { getAbsolutePath,logger,rootPackage,distRootDir,projectConfigPath,getLocalConfig,clientManifestPath,saveRuntimeConfig,rollupServerConfigPath,rollupClientConfigPath,getRuntimeConfig} from "./src/utils.js"
 import {compiler as moduleCompiler} from "./src/module.js"
 import appCompiler from "./src/buildapp.js"
 import {sfcCompiler,setWatcherResolver} from "./src/buildsfc.js"
@@ -84,6 +84,7 @@ async function initConfig(isDev){
     await copyFile(getAbsolutePath("./template/rollup.config.server.js",true),rollupServerConfigPath)
     await copyFile(getAbsolutePath("./template/rollup.config.client.js",true),rollupClientConfigPath)
     logger.info("config initialize ok")
+    process.env.vsfcPackageRoot = rootPackage
     return config
   }catch(e){
     logger.error(e)

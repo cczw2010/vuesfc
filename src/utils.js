@@ -27,7 +27,8 @@ export function md5(data){
 }
 
 // 项目对应的唯一编译输出根目录地址md5增加前缀是为了防止\<number>被处理为进制数据（windows下路径）
-export const distRootDir = getAbsolutePath(`.vue/v${md5(rootProject)}`,true)
+export const distRootDir = getAbsolutePath('.vue')
+// export const distRootDir = getAbsolutePath(`.vue/v${md5(rootProject)}`,true)
 // 项目对应的最终配置文件地址
 export const runtimeConfigPath = join(distRootDir,'config.runtime.js')
 

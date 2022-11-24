@@ -8,14 +8,13 @@ import Components from 'unplugin-vue-components/rollup'
 import vue from 'rollup-plugin-vue'
 import postcss from "rollup-plugin-postcss"
 import { terser } from "rollup-plugin-terser" 
-import {rootPackage} from "../../src/utils.js"
 import Config from "./config.runtime.js"
 const outputExternal = ["vue"].concat(Config.rollupExternal||[])
 const plugins = [
   nodeResolve({
     preferBuiltins: true,
     mainFields: ["module",'jsnext:main', 'main'],
-    modulePaths:[join(rootPackage,'node_modules')],
+    modulePaths:[join(process.env.vsfcPackageRoot,'node_modules')],
     // modulesOnly:true,
   }) ,
   commonjs(),
@@ -45,6 +44,7 @@ const plugins = [
     dirs: Config.source_components,
     deep: true,
     transformer:'vue2',
+    version: 2,
     // ui库解析器
     resolvers:[
       // (componentName) => {

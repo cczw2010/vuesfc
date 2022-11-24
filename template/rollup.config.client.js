@@ -1,5 +1,5 @@
 // import nodePolyfills from 'rollup-plugin-node-polyfills'
-import {resolve} from "path"
+import {resolve,join} from "path"
 import globals from "rollup-plugin-node-globals"
 import nodeResolve from '@rollup/plugin-node-resolve'   // // 告诉 Rollup 如何查找外部模块
 import commonjs from '@rollup/plugin-commonjs'     // 将Commonjs语法的包转为ES6可用
@@ -12,15 +12,16 @@ import Components from 'unplugin-vue-components/rollup'
 import vue from 'rollup-plugin-vue'
 import postcss from "rollup-plugin-postcss"
 import { terser } from "rollup-plugin-terser" 
-import sfcCheck from "../../src/rollup-plugin-sfccheck.js"
 import Config from "./config.runtime.js"
+// import sfcCheck from "../../src/rollup-plugin-sfccheck.js"
+const sfcCheck = await import(join(process.env.vsfcPackageRoot,'src/rollup-plugin-sfccheck.js')).then(m=>m.default)
 const outputExternal = ["vue"].concat(Config.rollupExternal||[])
 const outputGlobals = Object.assign({"vue":"Vue"},Config.rollupGlobals)
 const plugins = [
   nodeResolve({
     preferBuiltins: true,
     mainFields: ["module",'jsnext:main', 'main'],
-    // modulePaths:[join(rootPackage,'node_modules')],
+    modulePaths:[join(process.env.vsfcPackageRoot,'node_modules')],
     // browser: true,
     // modulesOnly:true,
   }) ,
@@ -56,6 +57,7 @@ const plugins = [
     dirs: Config.source_components,
     deep: true,
     transformer:'vue2',
+    version: 2,
     // ui库解析器
     resolvers:[
       // (componentName) => {
