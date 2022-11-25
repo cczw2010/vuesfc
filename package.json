@@ -60,11 +60,6 @@
   },
   "imports": {},
   "devDependencies": {
-    "ant-design-vue": "1.7.8",
-    "element-ui": "^2.15.10",
-    "vant": "^2.12.50",
-    "vue-js-toggle-button": "^1.3.3",
-    "vue-notification": "^1.3.20",
-    "vuetify": "^2.6.11"
+    
   }
 }
