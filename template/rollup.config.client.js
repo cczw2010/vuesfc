@@ -13,8 +13,9 @@ import vue from 'rollup-plugin-vue'
 import postcss from "rollup-plugin-postcss"
 import { terser } from "rollup-plugin-terser" 
 import Config from "./config.runtime.js"
-// import sfcCheck from "../../src/rollup-plugin-sfccheck.js"
-const sfcCheck = await import(join(process.env.vsfcPackageRoot,'src/rollup-plugin-sfccheck.js')).then(m=>m.default)
+import { pathToFileURL } from "url"
+// import sfcCheck from "../../src/rollup-plugin-sfccheck.js")
+const sfcCheck = await import(pathToFileURL(join(process.env.vsfcPackageRoot,'src/rollup-plugin-sfccheck.js'))).then(m=>m.default)
 const outputExternal = ["vue"].concat(Config.rollupExternal||[])
 const outputGlobals = Object.assign({"vue":"Vue"},Config.rollupGlobals)
 const plugins = [
