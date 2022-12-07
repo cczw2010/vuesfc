@@ -1,3 +1,5 @@
+# ！！！转战vite,不再更新
+
 vue2 sfc 文件的编译工具。 基于rollup。
 
 参考nuxt的模式， vue文件分为 `page`,`layout`,`component` 三种类型， `component`自定义的组件可以直接在`page`和`layout`中使用，而无需引入。 `page`中设定layout， 编译工具会自动寻找`layout`并组合成最终页面的服务端渲染js和客户端js
